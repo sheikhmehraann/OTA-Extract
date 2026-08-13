@@ -3,6 +3,7 @@ work/
 base_imgs/
 output_imgs/
 inspect_logs/
+inspect_logs2/
 *.zip
 *.bin
 *.tar.xz
