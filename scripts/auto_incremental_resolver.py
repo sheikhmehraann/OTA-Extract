@@ -13,6 +13,16 @@ try:
 except ImportError:
     from scripts.raw_block_extractor import extract_raw_blocks
 
+def get_valid_partition_count(output_dir):
+    if not os.path.exists(output_dir):
+        return 0
+    count = 0
+    for fname in os.listdir(output_dir):
+        fpath = os.path.join(output_dir, fname)
+        if os.path.isfile(fpath) and os.path.getsize(fpath) > 0:
+            count += 1
+    return count
+
 def resolve_incremental(payload_path, output_dir, base_dir=None):
     os.makedirs(output_dir, exist_ok=True)
     rust_dumper = os.path.abspath("bin/payload-extract")
@@ -31,23 +41,27 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
     except Exception as e:
         print(f"[!] Raw Block Extractor Warning: {e}")
 
-    # 2. Engine #2: YuKongA payload-extract Rust Engine if base directory exists
-    if base_dir and os.path.exists(base_dir) and os.listdir(base_dir) and os.path.exists(rust_dumper) and os.access(rust_dumper, os.X_OK):
-        print("\n[+] Engine 2: Executing YuKongA payload-extract (Rust) with base firmware...")
-        cmd = [rust_dumper, "extract", payload_path, "-o", output_dir, "--source-dir", base_dir]
-        subprocess.run(cmd, check=False)
+    extracted_count = get_valid_partition_count(output_dir)
+    if extracted_count > 0:
+        print(f"[+] Engine 1 successfully reconstructed {extracted_count} partition images! Skipping fallback engines.")
+    else:
+        # 2. Engine #2: YuKongA payload-extract Rust Engine if base directory exists
+        if base_dir and os.path.exists(base_dir) and os.listdir(base_dir) and os.path.exists(rust_dumper) and os.access(rust_dumper, os.X_OK):
+            print("\n[+] Engine 2: Executing YuKongA payload-extract (Rust) with base firmware...")
+            cmd = [rust_dumper, "extract", payload_path, "-o", output_dir, "--source-dir", base_dir]
+            subprocess.run(cmd, check=False)
 
-    # 3. Engine #3: payload-dumper-go
-    if os.path.exists(go_dumper) and os.access(go_dumper, os.X_OK):
-        print("\n[+] Engine 3: Executing payload-dumper-go...")
-        cmd = [go_dumper, "-o", output_dir, payload_path]
-        subprocess.run(cmd, check=False)
+        # 3. Engine #3: payload-dumper-go
+        if os.path.exists(go_dumper) and os.access(go_dumper, os.X_OK):
+            print("\n[+] Engine 3: Executing payload-dumper-go...")
+            cmd = [go_dumper, "-o", output_dir, payload_path]
+            subprocess.run(cmd, check=False)
 
-    # 4. Engine #4: Python payload_dumper
-    if os.path.exists(py_dumper):
-        print("\n[+] Engine 4: Executing Python payload_dumper...")
-        cmd = ["python3", py_dumper, "--out", output_dir, payload_path]
-        subprocess.run(cmd, check=False)
+        # 4. Engine #4: Python payload_dumper
+        if os.path.exists(py_dumper):
+            print("\n[+] Engine 4: Executing Python payload_dumper...")
+            cmd = ["python3", py_dumper, "--out", output_dir, payload_path]
+            subprocess.run(cmd, check=False)
 
     # 5. Filter & Keep all valid partition files (> 0 bytes)
     print("\n==================================================")
