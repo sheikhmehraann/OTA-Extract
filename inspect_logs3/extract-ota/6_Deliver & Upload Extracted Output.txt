@@ -1,0 +1,24 @@
+﻿2026-08-13T13:00:20.1854160Z ##[group]Run chmod +x scripts/upload_output.sh
+2026-08-13T13:00:20.1854562Z [36;1mchmod +x scripts/upload_output.sh[0m
+2026-08-13T13:00:20.1855131Z [36;1m./scripts/upload_output.sh[0m
+2026-08-13T13:00:20.1899488Z shell: /usr/bin/bash -e {0}
+2026-08-13T13:00:20.1899736Z env:
+2026-08-13T13:00:20.1902640Z   GITHUB_TOKEN: ***
+2026-08-13T13:00:20.1902881Z   UPLOAD_TARGET: gofile
+2026-08-13T13:00:20.1903095Z ##[endgroup]
+2026-08-13T13:00:20.2005219Z ==================================================
+2026-08-13T13:00:20.2005895Z [+] Packaging and Uploading Extracted Images...
+2026-08-13T13:00:20.2006415Z ==================================================
+2026-08-13T13:00:20.2038973Z [+] Creating compressed tar archive: ota-extract-20260813-130020.tar.xz...
+2026-08-13T13:00:20.2278067Z Compressed package size:
+2026-08-13T13:00:20.2293112Z -rw-r--r-- 1 runner runner 5.0K Aug 13 13:00 ota-extract-20260813-130020.tar.xz
+2026-08-13T13:00:20.2295562Z [+] Executing GoFile Upload...
+2026-08-13T13:00:21.1409577Z [+] Requesting active GoFile upload server...
+2026-08-13T13:00:21.1410235Z [+] Target GoFile server: store6
+2026-08-13T13:00:21.1410773Z [+] Uploading ota-extract-20260813-130020.tar.xz (0.00 MB) to GoFile...
+2026-08-13T13:00:21.1411348Z ==================================================
+2026-08-13T13:00:21.1411905Z [SUCCESS] GoFile Download URL: https://gofile.io/d/0vlMb7bz
+2026-08-13T13:00:21.1412427Z ==================================================
+2026-08-13T13:00:21.1505494Z ==================================================
+2026-08-13T13:00:21.1506020Z [+] Finished Delivery Engine Step!
+2026-08-13T13:00:21.1506326Z ==================================================
