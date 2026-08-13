@@ -2,7 +2,7 @@
 """
 Smart Android OTA Payload Extractor & Reconstructor
 Extracts valid partition images, filters out empty delta placeholders,
-and applies incremental diff patching when base images are supplied.
+and runs multi-engine fallback (Go + Python) for Incremental & Full OTAs.
 """
 
 import os
@@ -13,26 +13,27 @@ import subprocess
 def smart_extract(payload_path, out_dir, old_dir=None):
     os.makedirs(out_dir, exist_ok=True)
     dumper_bin = os.path.abspath("bin/payload-dumper-go")
+    py_dumper = os.path.abspath("bin/payload_dumper.py")
     
     if not os.path.exists(dumper_bin):
         dumper_bin = shutil.which("payload-dumper-go") or "payload-dumper-go"
 
-    print(f"[+] Using dumper binary: {dumper_bin}")
+    print(f"[+] Using Go dumper binary: {dumper_bin}")
+    print(f"[+] Using Python dumper script: {py_dumper}")
     print(f"[+] Payload target: {payload_path}")
 
-    if old_dir and os.path.exists(old_dir):
-        print(f"[+] Base images directory provided: {old_dir}. Running Incremental Diff Patching...")
-        cmd = [dumper_bin, "-o", out_dir, "-old", old_dir, payload_path]
-    else:
-        print("[+] Running Standard Extraction...")
-        cmd = [dumper_bin, "-o", out_dir, payload_path]
+    # 1. Run Go dumper
+    print("[+] Running Go payload-dumper-go...")
+    cmd_go = [dumper_bin, "-o", out_dir, payload_path]
+    subprocess.run(cmd_go, check=False)
 
-    try:
-        subprocess.run(cmd, check=False)
-    except Exception as e:
-        print(f"[!] Dumper output note: {e}")
+    # 2. Run Python dumper to extract any replacement partitions missed by Go engine
+    if os.path.exists(py_dumper):
+        print("\n[+] Running Python payload_dumper engine...")
+        cmd_py = ["python3", py_dumper, "--out", out_dir, payload_path]
+        subprocess.run(cmd_py, check=False)
 
-    # Inspect extracted files and remove 0-byte or empty placeholder files
+    # 3. Filter extracted files to purge empty 0-byte placeholders
     print("\n[+] Filtering extracted partition images...")
     valid_files = []
     for fname in os.listdir(out_dir):
@@ -40,34 +41,17 @@ def smart_extract(payload_path, out_dir, old_dir=None):
         if os.path.isfile(fpath):
             size = os.path.getsize(fpath)
             if size < 4096:
+                print(f"  [-] Removing placeholder: {fname} ({size} bytes)")
                 os.remove(fpath)
             else:
-                print(f"  [✓] Valid extracted partition: {fname} ({size / 1024 / 1024:.2f} MB)")
+                print(f"  [✓] Valid partition image: {fname} ({size / 1024 / 1024:.2f} MB)")
                 valid_files.append(fname)
 
-    # Fallback to python payload_dumper if payload-dumper-go skipped REPLACE partitions
     if not valid_files:
-        print("\n[+] Running Python payload_dumper fallback for REPLACE partitions...")
-        py_dumper = os.path.abspath("bin/payload_dumper.py")
-        if os.path.exists(py_dumper):
-            cmd_py = ["python3", py_dumper, "--out", out_dir, payload_path]
-            try:
-                subprocess.run(cmd_py, check=False)
-            except Exception as e:
-                print(f"[!] Python dumper fallback note: {e}")
+        print("\n[!] Error: No valid partition images extracted. Ensure payload file is valid.")
+        sys.exit(1)
 
-        for fname in os.listdir(out_dir):
-            fpath = os.path.join(out_dir, fname)
-            if os.path.isfile(fpath):
-                size = os.path.getsize(fpath)
-                if size < 4096:
-                    os.remove(fpath)
-                else:
-                    if fname not in valid_files:
-                        print(f"  [✓] Python extracted partition: {fname} ({size / 1024 / 1024:.2f} MB)")
-                        valid_files.append(fname)
-
-    print(f"\n[SUCCESS] Total valid non-zero partition image(s) ready for package: {len(valid_files)}")
+    print(f"\n[SUCCESS] Total valid non-zero partition image(s) ready for upload: {len(valid_files)}")
 
 if __name__ == "__main__":
     payload = sys.argv[1] if len(sys.argv) > 1 else "payload.bin"

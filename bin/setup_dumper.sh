@@ -3,7 +3,10 @@ set -eo pipefail
 
 echo "[+] Setting up dependencies & binaries..."
 sudo apt-get update -qq
-sudo apt-get install -y aria2 p7zip-full brotli python3 python3-pip curl jq xz-utils
+sudo apt-get install -y aria2 p7zip-full brotli python3 python3-pip python3-setuptools curl jq xz-utils
+
+echo "[+] Installing Python payload extraction requirements..."
+python3 -m pip install --break-system-packages protobuf bsdiff4 brotli || pip3 install protobuf bsdiff4 brotli || true
 
 TOOLS_DIR="$(pwd)/bin"
 mkdir -p "$TOOLS_DIR"
@@ -28,5 +31,9 @@ chmod +x "$TOOLS_DIR/payload-dumper-go" 2>/dev/null || chmod +x "$TOOLS_DIR/payl
 echo "[+] Downloading sdat2img helper..."
 curl -sL "https://raw.githubusercontent.com/xpirt/sdat2img/master/sdat2img.py" -o "$TOOLS_DIR/sdat2img.py"
 chmod +x "$TOOLS_DIR/sdat2img.py"
+
+echo "[+] Downloading Python payload_dumper..."
+curl -sL "https://raw.githubusercontent.com/vm03/payload_dumper/master/payload_dumper.py" -o "$TOOLS_DIR/payload_dumper.py"
+curl -sL "https://raw.githubusercontent.com/vm03/payload_dumper/master/update_metadata_pb2.py" -o "$TOOLS_DIR/update_metadata_pb2.py"
 
 echo "[+] Tools successfully installed in $TOOLS_DIR!"
