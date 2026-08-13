@@ -1,23 +1,17 @@
 #!/usr/bin/env python3
 """
 Auto Incremental Payload Resolver Engine
-Extracts 100% full partition images (boot, vendor_boot, init_boot, dtbo, vbmeta, md1img, preloader_raw, lk, gz, logo, mcf_ota, odm_dlkm, vendor_dlkm)
-from Incremental payload.bin files without requiring any base firmware file.
+Reconstructs real partition images directly from raw data blocks in Incremental OTAs.
 """
 
 import os
 import sys
-import shutil
 import subprocess
 
-# List of partitions that are full replacements in Incremental OTAs
-FULL_REPLACEMENT_PARTITIONS = [
-    "boot", "vendor_boot", "init_boot", "dtbo", "vbmeta", "vbmeta_system", "vbmeta_vendor",
-    "md1img", "preloader_raw", "preloader", "lk", "gz", "logo", "mcf_ota", "mcupm",
-    "odm_dlkm", "vendor_dlkm", "apusys", "ccu", "dpm", "gpueb", "mvpu_algo", "pi_img",
-    "scp", "spmfw", "sspm", "tee", "tkv", "tr_carrier", "tr_company", "tr_mi",
-    "tr_overlayfs", "tr_preload", "tr_product", "tr_region", "tr_theme", "vcp"
-]
+try:
+    from raw_block_extractor import extract_raw_blocks
+except ImportError:
+    from scripts.raw_block_extractor import extract_raw_blocks
 
 def resolve_incremental(payload_path, output_dir, base_dir=None):
     os.makedirs(output_dir, exist_ok=True)
@@ -26,24 +20,36 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
     py_dumper = os.path.abspath("bin/payload_dumper.py")
 
     print("==================================================")
-    print("[+] Incremental OTA Partition Extractor Engine")
+    print("[+] Auto Incremental Resolver Engine Initiated")
     print(f"[+] Target Payload: {payload_path}")
     print("==================================================")
 
-    # 1. Extract every full replacement partition individually using payload-dumper-go
+    # 1. Engine #1: Raw Block Extractor (Parses Protobuf & reconstructs raw replace data blocks)
+    print("[+] Engine 1: Executing Raw Protobuf Block Extractor...")
+    try:
+        extract_raw_blocks(payload_path, output_dir)
+    except Exception as e:
+        print(f"[!] Raw Block Extractor Warning: {e}")
+
+    # 2. Engine #2: YuKongA payload-extract Rust Engine if base directory exists
+    if base_dir and os.path.exists(base_dir) and os.listdir(base_dir) and os.path.exists(rust_dumper) and os.access(rust_dumper, os.X_OK):
+        print("\n[+] Engine 2: Executing YuKongA payload-extract (Rust) with base firmware...")
+        cmd = [rust_dumper, "extract", payload_path, "-o", output_dir, "--source-dir", base_dir]
+        subprocess.run(cmd, check=False)
+
+    # 3. Engine #3: payload-dumper-go
     if os.path.exists(go_dumper) and os.access(go_dumper, os.X_OK):
-        print("[+] Extracting all full replacement partitions with payload-dumper-go...")
-        part_arg = ",".join(FULL_REPLACEMENT_PARTITIONS)
-        cmd_go = [go_dumper, "-o", output_dir, "-p", part_arg, payload_path]
-        subprocess.run(cmd_go, check=False)
+        print("\n[+] Engine 3: Executing payload-dumper-go...")
+        cmd = [go_dumper, "-o", output_dir, payload_path]
+        subprocess.run(cmd, check=False)
 
-    # 2. Extract remaining decompressed partitions using Python payload_dumper
+    # 4. Engine #4: Python payload_dumper
     if os.path.exists(py_dumper):
-        print("[+] Running Python payload_dumper fallback for replace blocks...")
-        cmd_py = ["python3", py_dumper, "--out", output_dir, payload_path]
-        subprocess.run(cmd_py, check=False)
+        print("\n[+] Engine 4: Executing Python payload_dumper...")
+        cmd = ["python3", py_dumper, "--out", output_dir, payload_path]
+        subprocess.run(cmd, check=False)
 
-    # 3. Filter & Keep all valid partition files (> 4 KB)
+    # 5. Filter & Keep all valid partition files (> 4 KB)
     print("\n==================================================")
     print("[+] Validating Extracted Partition Images...")
     print("==================================================")
@@ -56,15 +62,15 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
         if os.path.isfile(fpath):
             size = os.path.getsize(fpath)
             if size <= 4096:
-                print(f"  [-] Purging empty 0-byte placeholder: {fname} ({size} bytes)")
+                print(f"  [-] Removing 0-byte placeholder: {fname}")
                 os.remove(fpath)
             else:
                 valid_images.append(fname)
                 total_bytes += size
-                print(f"  [✓] EXTRACTED REAL IMAGE: {fname:<25} ({size / 1024 / 1024:.2f} MB)")
+                print(f"  [✓] EXTRACTED REAL PARTITION IMAGE: {fname:<25} ({size / 1024 / 1024:.2f} MB)")
 
     print("==================================================")
-    print(f"[SUCCESS] Extracted {len(valid_images)} Real Partition Image(s) ({total_bytes / 1024 / 1024:.2f} MB total)")
+    print(f"[SUCCESS] Total Extracted Real Partition Images: {len(valid_images)} ({total_bytes / 1024 / 1024:.2f} MB total)")
     print("==================================================")
 
     if not valid_images:
