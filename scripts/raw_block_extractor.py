@@ -9,7 +9,6 @@ import os
 import sys
 import struct
 import lzma
-import subprocess
 
 try:
     import update_metadata_pb2
@@ -72,11 +71,7 @@ def extract_raw_blocks(payload_path, output_dir):
                 out_f.truncate(part_size)
 
                 for op in part.operations:
-                    dst_pos = op.dst_extents[0].start_block * block_size if op.dst_extents else 0
-                    num_blocks = sum(ext.num_blocks for ext in op.dst_extents) if op.dst_extents else 1
-                    op_len = num_blocks * block_size
-
-                    # Check operation type (0: REPLACE, 1: REPLACE_BZ, 4: REPLACE_XZ, 8: ZSTD)
+                    data = None
                     if op.type in (0, 1, 4, 8) and op.data_length > 0:
                         f.seek(data_offset + op.data_offset)
                         data = f.read(op.data_length)
@@ -86,15 +81,24 @@ def extract_raw_blocks(payload_path, output_dir):
                                 data = lzma.decompress(data)
                             except Exception:
                                 pass
-                        
-                        out_f.seek(dst_pos)
-                        out_f.write(data)
-                        written_bytes += len(data)
-                    else:
-                        # For diff/source operations, ensure space is block-allocated
-                        out_f.seek(dst_pos)
-                        out_f.write(b"\x00" * min(op_len, part_size - dst_pos))
-                        written_bytes += min(op_len, part_size - dst_pos)
+
+                    if op.dst_extents:
+                        data_cursor = 0
+                        for ext in op.dst_extents:
+                            dst_pos = ext.start_block * block_size
+                            ext_len = ext.num_blocks * block_size
+
+                            out_f.seek(dst_pos)
+                            if data:
+                                ext_data = data[data_cursor : data_cursor + ext_len]
+                                out_f.write(ext_data)
+                                data_cursor += len(ext_data)
+                                written_bytes += len(ext_data)
+                            else:
+                                write_len = min(ext_len, max(0, part_size - dst_pos))
+                                if write_len > 0:
+                                    out_f.write(b"\x00" * write_len)
+                                    written_bytes += write_len
 
             real_size = os.path.getsize(out_img)
             if real_size > 0:
