@@ -49,7 +49,7 @@ elif [[ "$OTA_URL" == *"payload.bin"* ]] || [[ "$FILE_TYPE" == *"data"* ]]; then
     mv downloaded_target payload.bin
     PAYLOAD_FILE="$WORKDIR/payload.bin"
 else
-    echo "[!] Attempting 7z payload check..."
+    echo "[+] Attempting 7z payload check..."
     if 7z e -y downloaded_target payload.bin 2>/dev/null; then
         PAYLOAD_FILE="$WORKDIR/payload.bin"
     else
@@ -81,10 +81,10 @@ fi
 cd "$(pwd)/.."
 
 echo "=================================================="
-echo "[+] Executing Universal Incremental Extractor Engine..."
+echo "[+] Executing Auto Incremental Resolver Engine..."
 echo "=================================================="
 
-python3 scripts/universal_incremental_extractor.py "$PAYLOAD_FILE" "$OUTDIR"
+python3 scripts/auto_incremental_resolver.py "$PAYLOAD_FILE" "$OUTDIR" "$BASEDIR"
 
 echo "=================================================="
 echo "[+] Extraction Complete! Partition files in output_imgs:"
