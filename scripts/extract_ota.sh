@@ -22,29 +22,51 @@ if [ -z "$OTA_URL" ]; then
 fi
 
 echo "[+] Downloading target OTA from: $OTA_URL"
-aria2c -x 16 -s 16 -k 1M --dir="$WORKDIR" -o "target_ota.zip" "$OTA_URL" || curl -sL "$OTA_URL" -o "$WORKDIR/target_ota.zip"
-
-echo "[+] Inspecting downloaded file..."
 cd "$WORKDIR"
 
-PAYLOAD_FILE=""
-if 7z l target_ota.zip | grep -q "payload.bin"; then
-    echo "[+] Found payload.bin in target OTA zip. Extracting..."
-    7z e -y target_ota.zip payload.bin
-    PAYLOAD_FILE="$WORKDIR/payload.bin"
-elif [ -f "target_ota.zip" ] && file "target_ota.zip" | grep -q "data"; then
-    # File might be payload.bin directly
-    mv target_ota.zip payload.bin
-    PAYLOAD_FILE="$WORKDIR/payload.bin"
+if ! aria2c -x 16 -s 16 -k 1M --dir="$WORKDIR" -o "downloaded_target" "$OTA_URL"; then
+    echo "[!] aria2c download failed, falling back to curl..."
+    curl -sSL -o "downloaded_target" "$OTA_URL"
 fi
 
-# Locate payload dumper executable
+if [ ! -f "downloaded_target" ] || [ ! -s "downloaded_target" ]; then
+    echo "[!] Error: Downloaded file is missing or zero bytes!"
+    exit 1
+fi
+
+PAYLOAD_FILE=""
+
+# Check file type
+FILE_TYPE=$(file "downloaded_target" || true)
+
+if 7z l downloaded_target >/dev/null 2>&1 && 7z l downloaded_target | grep -q "payload.bin"; then
+    echo "[+] Found payload.bin inside downloaded ZIP archive. Extracting..."
+    7z e -y downloaded_target payload.bin
+    PAYLOAD_FILE="$WORKDIR/payload.bin"
+elif [[ "$FILE_TYPE" == *"Zip archive"* ]] || [[ "$FILE_TYPE" == *"7-zip archive"* ]]; then
+    echo "[+] Downloaded file is a ZIP archive without payload.bin. Checking for legacy dat/br images..."
+    mv downloaded_target target_ota.zip
+elif [[ "$OTA_URL" == *"payload.bin"* ]] || [[ "$FILE_TYPE" == *"data"* ]]; then
+    echo "[+] Direct payload.bin file detected."
+    mv downloaded_target payload.bin
+    PAYLOAD_FILE="$WORKDIR/payload.bin"
+else
+    echo "[!] Warning: Unknown file format ($FILE_TYPE). Attempting 7z payload check..."
+    if 7z e -y downloaded_target payload.bin 2>/dev/null; then
+        PAYLOAD_FILE="$WORKDIR/payload.bin"
+    else
+        mv downloaded_target payload.bin
+        PAYLOAD_FILE="$WORKDIR/payload.bin"
+    fi
+fi
+
+# Locate payload dumper binary
 DUMPER="$(pwd)/../bin/payload-dumper-go"
 if [ ! -f "$DUMPER" ]; then
     DUMPER="$(which payload-dumper-go || which payload-dumper || true)"
 fi
 
-if [ -z "$DUMPER" ]; then
+if [ -z "$DUMPER" ] || [ ! -f "$DUMPER" ]; then
     echo "[!] Error: payload-dumper-go executable not found!"
     exit 1
 fi
@@ -61,11 +83,13 @@ if [ "$OTA_TYPE" == "INCREMENTAL" ] || [ "$OTA_TYPE" == "DELTA" ]; then
     fi
 
     echo "[+] Downloading Base Firmware from: $BASE_FIRMWARE_URL"
-    aria2c -x 16 -s 16 -k 1M --dir="$BASEDIR" -o "base_fw.zip" "$BASE_FIRMWARE_URL" || curl -sL "$BASE_FIRMWARE_URL" -o "$BASEDIR/base_fw.zip"
+    if ! aria2c -x 16 -s 16 -k 1M --dir="$BASEDIR" -o "base_fw.zip" "$BASE_FIRMWARE_URL"; then
+        curl -sSL -o "$BASEDIR/base_fw.zip" "$BASE_FIRMWARE_URL"
+    fi
     
     echo "[+] Extracting base firmware payload..."
     cd "$BASEDIR"
-    if 7z l base_fw.zip | grep -q "payload.bin"; then
+    if 7z l base_fw.zip 2>/dev/null | grep -q "payload.bin"; then
         7z e -y base_fw.zip payload.bin
         "$DUMPER" payload.bin -o "$BASEDIR"
     else
@@ -74,31 +98,31 @@ if [ "$OTA_TYPE" == "INCREMENTAL" ] || [ "$OTA_TYPE" == "DELTA" ]; then
     cd "$WORKDIR"
 
     echo "[+] Executing Incremental Diff Extraction..."
+    PART_ARGS=""
     if [ "$PARTITIONS" != "all" ] && [ -n "$PARTITIONS" ]; then
-        PART_ARG="-p $PARTITIONS"
-    else
-        PART_ARG=""
+        IFS=',' read -ra PART_ARRAY <<< "$PARTITIONS"
+        for p in "${PART_ARRAY[@]}"; do
+            PART_ARGS="$PART_ARGS -p $p"
+        done
     fi
 
-    "$DUMPER" extract-diff "$PAYLOAD_FILE" --old "$BASEDIR" -o "$OUTDIR" $PART_ARG || \
-    "$DUMPER" "$PAYLOAD_FILE" --old "$BASEDIR" -o "$OUTDIR" $PART_ARG
+    "$DUMPER" extract-diff "$PAYLOAD_FILE" --old "$BASEDIR" -o "$OUTDIR" $PART_ARGS || \
+    "$DUMPER" "$PAYLOAD_FILE" --old "$BASEDIR" -o "$OUTDIR" $PART_ARGS
 else
     echo "=================================================="
     echo "[+] Processing FULL OTA Payload"
     echo "=================================================="
     
     if [ -n "$PAYLOAD_FILE" ] && [ -f "$PAYLOAD_FILE" ]; then
+        PART_ARGS=""
         if [ "$PARTITIONS" != "all" ] && [ -n "$PARTITIONS" ]; then
             IFS=',' read -ra PART_ARRAY <<< "$PARTITIONS"
-            PART_ARGS=""
             for p in "${PART_ARRAY[@]}"; do
                 PART_ARGS="$PART_ARGS -p $p"
             done
-            "$DUMPER" $PART_ARGS -o "$OUTDIR" "$PAYLOAD_FILE"
-        else
-            "$DUMPER" -o "$OUTDIR" "$PAYLOAD_FILE"
         fi
-    elif 7z l target_ota.zip | grep -q "\.new\.dat"; then
+        "$DUMPER" $PART_ARGS -o "$OUTDIR" "$PAYLOAD_FILE"
+    elif [ -f "target_ota.zip" ] && 7z l target_ota.zip 2>/dev/null | grep -q "\.new\.dat"; then
         echo "[+] Legacy DAT/BR OTA detected. Extracting..."
         7z x -y target_ota.zip -o"$WORKDIR/legacy"
         cd "$WORKDIR/legacy"
@@ -117,6 +141,9 @@ else
                 fi
             fi
         done
+    else
+        echo "[!] Error: No valid payload.bin or legacy system.new.dat files found to extract!"
+        exit 1
     fi
 fi
 

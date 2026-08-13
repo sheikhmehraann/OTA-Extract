@@ -1,0 +1,58 @@
+﻿2026-08-13T12:43:58.9206404Z ##[group]Run chmod +x scripts/extract_ota.sh
+2026-08-13T12:43:58.9206784Z [36;1mchmod +x scripts/extract_ota.sh[0m
+2026-08-13T12:43:58.9207066Z [36;1m./scripts/extract_ota.sh[0m
+2026-08-13T12:43:58.9250315Z shell: /usr/bin/bash -e {0}
+2026-08-13T12:43:58.9250561Z env:
+2026-08-13T12:43:58.9250926Z   OTA_URL: https://raw.githubusercontent.com/xishang0128/payload-dumper-go/main/go.mod
+2026-08-13T12:43:58.9251360Z   OTA_TYPE: FULL
+2026-08-13T12:43:58.9251561Z   BASE_FIRMWARE_URL: 
+2026-08-13T12:43:58.9251767Z   PARTITIONS: all
+2026-08-13T12:43:58.9251959Z ##[endgroup]
+2026-08-13T12:43:58.9338840Z ==================================================
+2026-08-13T12:43:58.9339404Z [+] Starting Android OTA Payload Extraction...
+2026-08-13T12:43:58.9339829Z ==================================================
+2026-08-13T12:43:58.9365300Z [+] Downloading target OTA from: https://raw.githubusercontent.com/xishang0128/payload-dumper-go/main/go.mod
+2026-08-13T12:43:59.3618572Z 
+2026-08-13T12:43:59.3619347Z 08/13 12:43:59 [[1;32mNOTICE[0m] Downloading 1 item(s)
+2026-08-13T12:43:59.4466693Z 
+2026-08-13T12:43:59.4468559Z 08/13 12:43:59 [[1;31mERROR[0m] CUID#7 - Download aborted. URI=https://raw.githubusercontent.com/xishang0128/payload-dumper-go/main/go.mod
+2026-08-13T12:43:59.4469789Z Exception: [AbstractCommand.cc:351] errorCode=3 URI=https://raw.githubusercontent.com/xishang0128/payload-dumper-go/main/go.mod
+2026-08-13T12:43:59.4470640Z   -> [HttpSkipResponseCommand.cc:218] errorCode=3 Resource not found
+2026-08-13T12:43:59.4471010Z 
+2026-08-13T12:43:59.4471764Z 08/13 12:43:59 [[1;32mNOTICE[0m] Download GID#7709a26becdbc645 not complete: /home/runner/work/OTA-Extract/OTA-Extract/work/target_ota.zip
+2026-08-13T12:43:59.4472374Z 
+2026-08-13T12:43:59.4472501Z Download Results:
+2026-08-13T12:43:59.4472769Z gid   |stat|avg speed  |path/URI
+2026-08-13T12:43:59.4473642Z ======+====+===========+=======================================================
+2026-08-13T12:43:59.4474559Z 7709a2|ERR |       0B/s|/home/runner/work/OTA-Extract/OTA-Extract/work/target_ota.zip
+2026-08-13T12:43:59.4474966Z 
+2026-08-13T12:43:59.4475054Z Status Legend:
+2026-08-13T12:43:59.4475267Z (ERR):error occurred.
+2026-08-13T12:43:59.4479872Z 
+2026-08-13T12:43:59.4480453Z aria2 will resume download if the transfer is restarted.
+2026-08-13T12:43:59.4481447Z If there are any errors, then see the log file. See '-l' option in help/man page for details.
+2026-08-13T12:43:59.5094272Z [+] Inspecting downloaded file...
+2026-08-13T12:44:00.2733391Z 
+2026-08-13T12:44:00.2734124Z ERROR: target_ota.zip : target_ota.zip
+2026-08-13T12:44:00.2734702Z Open ERROR: Cannot open the file as [zip] archive
+2026-08-13T12:44:00.2735070Z 
+2026-08-13T12:44:00.2735077Z 
+2026-08-13T12:44:00.2735153Z ERRORS:
+2026-08-13T12:44:00.2735341Z Is not archive
+2026-08-13T12:44:00.2735465Z 
+2026-08-13T12:44:00.3823985Z [+] Extractor binary: /home/runner/work/OTA-Extract/OTA-Extract/work/../bin/payload-dumper-go
+2026-08-13T12:44:00.3825226Z ==================================================
+2026-08-13T12:44:00.3825663Z [+] Processing FULL OTA Payload
+2026-08-13T12:44:00.3826306Z ==================================================
+2026-08-13T12:44:00.3859069Z 
+2026-08-13T12:44:00.3859307Z ERROR: target_ota.zip : target_ota.zip
+2026-08-13T12:44:00.3859845Z Open ERROR: Cannot open the file as [zip] archive
+2026-08-13T12:44:00.3860186Z 
+2026-08-13T12:44:00.3860191Z 
+2026-08-13T12:44:00.3860265Z ERRORS:
+2026-08-13T12:44:00.3860441Z Is not archive
+2026-08-13T12:44:00.3860556Z 
+2026-08-13T12:44:00.3864707Z ==================================================
+2026-08-13T12:44:00.3865358Z [+] Extraction Complete! Partition files in output_imgs:
+2026-08-13T12:44:00.3879389Z total 0
+2026-08-13T12:44:00.3883338Z ==================================================

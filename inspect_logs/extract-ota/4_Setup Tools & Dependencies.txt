@@ -1,0 +1,22 @@
+﻿2026-08-13T12:43:53.0265303Z ##[group]Run chmod +x bin/setup_dumper.sh
+2026-08-13T12:43:53.0265690Z [36;1mchmod +x bin/setup_dumper.sh[0m
+2026-08-13T12:43:53.0265971Z [36;1m./bin/setup_dumper.sh[0m
+2026-08-13T12:43:53.0311386Z shell: /usr/bin/bash -e {0}
+2026-08-13T12:43:53.0311655Z ##[endgroup]
+2026-08-13T12:43:53.0402074Z [+] Setting up dependencies & binaries...
+2026-08-13T12:43:58.1363173Z Reading package lists...
+2026-08-13T12:43:58.2848941Z Building dependency tree...
+2026-08-13T12:43:58.2855938Z Reading state information...
+2026-08-13T12:43:58.4313080Z aria2 is already the newest version (1.37.0+debian-1build3).
+2026-08-13T12:43:58.4313797Z p7zip-full is already the newest version (16.02+transitional.1).
+2026-08-13T12:43:58.4314201Z brotli is already the newest version (1.1.0-2build2).
+2026-08-13T12:43:58.4314564Z python3 is already the newest version (3.12.3-0ubuntu2.1).
+2026-08-13T12:43:58.4315288Z python3-pip is already the newest version (24.0+dfsg-1ubuntu1.3).
+2026-08-13T12:43:58.4315692Z curl is already the newest version (8.5.0-2ubuntu10.11).
+2026-08-13T12:43:58.4316107Z jq is already the newest version (1.7.1-3ubuntu0.24.04.2).
+2026-08-13T12:43:58.4316506Z xz-utils is already the newest version (5.6.1+really5.4.5-1ubuntu0.3).
+2026-08-13T12:43:58.4316945Z 0 upgraded, 0 newly installed, 0 to remove and 97 not upgraded.
+2026-08-13T12:43:58.4349802Z [+] Downloading payload-dumper-go...
+2026-08-13T12:43:58.5615084Z Fetching from: https://github.com/ssut/payload-dumper-go/releases/download/1.2.2/payload-dumper-go_1.2.2_linux_amd64.tar.gz
+2026-08-13T12:43:58.8191491Z [+] Downloading sdat2img helper...
+2026-08-13T12:43:58.9159907Z [+] Tools successfully installed in /home/runner/work/OTA-Extract/OTA-Extract/bin!
