@@ -9,7 +9,6 @@ import os
 import sys
 import shutil
 import subprocess
-from extract_replacement_blocks import extract_full_partitions_from_incremental
 
 def smart_extract(payload_path, out_dir, old_dir=None):
     os.makedirs(out_dir, exist_ok=True)
@@ -23,12 +22,15 @@ def smart_extract(payload_path, out_dir, old_dir=None):
 
     if old_dir and os.path.exists(old_dir):
         print(f"[+] Base images directory provided: {old_dir}. Running Incremental Diff Patching...")
-        cmd = [dumper_bin, "extract-diff", payload_path, "--old", old_dir, "-o", out_dir]
-        subprocess.run(cmd, check=False)
+        cmd = [dumper_bin, "-o", out_dir, "-old", old_dir, payload_path]
     else:
         print("[+] Running Standard Extraction...")
         cmd = [dumper_bin, "-o", out_dir, payload_path]
+
+    try:
         subprocess.run(cmd, check=False)
+    except Exception as e:
+        print(f"[!] Dumper output note: {e}")
 
     # Inspect extracted files and remove 0-byte or empty placeholder files
     print("\n[+] Filtering extracted partition images...")
@@ -43,15 +45,27 @@ def smart_extract(payload_path, out_dir, old_dir=None):
                 print(f"  [✓] Valid extracted partition: {fname} ({size / 1024 / 1024:.2f} MB)")
                 valid_files.append(fname)
 
+    # Fallback to python payload_dumper if payload-dumper-go skipped REPLACE partitions
     if not valid_files:
-        print("\n[!] Standard extraction yielded BSDIFF placeholders for system/vendor.")
-        print("[+] Falling back to Replacement Partition Extraction (boot, init_boot, vendor_boot, dtbo, vbmeta, modem)...")
-        count = extract_full_partitions_from_incremental(payload_path, out_dir)
-        if count > 0:
-            for fname in os.listdir(out_dir):
-                fpath = os.path.join(out_dir, fname)
-                if os.path.isfile(fpath) and os.path.getsize(fpath) > 4096:
-                    valid_files.append(fname)
+        print("\n[+] Running Python payload_dumper fallback for REPLACE partitions...")
+        py_dumper = os.path.abspath("bin/payload_dumper.py")
+        if os.path.exists(py_dumper):
+            cmd_py = ["python3", py_dumper, "--out", out_dir, payload_path]
+            try:
+                subprocess.run(cmd_py, check=False)
+            except Exception as e:
+                print(f"[!] Python dumper fallback note: {e}")
+
+        for fname in os.listdir(out_dir):
+            fpath = os.path.join(out_dir, fname)
+            if os.path.isfile(fpath):
+                size = os.path.getsize(fpath)
+                if size < 4096:
+                    os.remove(fpath)
+                else:
+                    if fname not in valid_files:
+                        print(f"  [✓] Python extracted partition: {fname} ({size / 1024 / 1024:.2f} MB)")
+                        valid_files.append(fname)
 
     print(f"\n[SUCCESS] Total valid non-zero partition image(s) ready for package: {len(valid_files)}")
 
