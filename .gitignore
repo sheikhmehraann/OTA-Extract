@@ -2,6 +2,7 @@
 work/
 base_imgs/
 output_imgs/
+inspect_logs/
 *.zip
 *.bin
 *.tar.xz
@@ -12,6 +13,6 @@ __pycache__/
 *.pyc
 .ds_store
 
-# Reference cloned repos (can be ignored or kept light)
+# Reference cloned repos
 reference_repos/DumprX/
 reference_repos/DumprX_repo/
