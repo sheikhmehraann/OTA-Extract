@@ -35,7 +35,6 @@ if [ ! -f "downloaded_target" ] || [ ! -s "downloaded_target" ]; then
 fi
 
 PAYLOAD_FILE=""
-
 FILE_TYPE=$(file "downloaded_target" || true)
 
 if 7z l downloaded_target >/dev/null 2>&1 && 7z l downloaded_target | grep -q "payload.bin"; then
@@ -59,7 +58,7 @@ else
     fi
 fi
 
-# Download Base Firmware if provided
+# Base firmware handling if provided
 if [ -n "$BASE_FIRMWARE_URL" ]; then
     echo "=================================================="
     echo "[+] Base Firmware URL provided: $BASE_FIRMWARE_URL"
@@ -72,7 +71,7 @@ if [ -n "$BASE_FIRMWARE_URL" ]; then
     cd "$BASEDIR"
     if 7z l base_fw.zip 2>/dev/null | grep -q "payload.bin"; then
         7z e -y base_fw.zip payload.bin
-        "$(pwd)/../../bin/payload-dumper-go" payload.bin -o "$BASEDIR" || true
+        "$(pwd)/../../bin/payload-dumper-go" -o "$BASEDIR" payload.bin || true
     else
         7z x -y base_fw.zip -o"$BASEDIR" || true
     fi
@@ -82,10 +81,10 @@ fi
 cd "$(pwd)/.."
 
 echo "=================================================="
-echo "[+] Executing Smart Payload Extractor Engine..."
+echo "[+] Executing Universal Incremental Extractor Engine..."
 echo "=================================================="
 
-python3 scripts/smart_payload_extractor.py "$PAYLOAD_FILE" "$OUTDIR" "$BASEDIR"
+python3 scripts/universal_incremental_extractor.py "$PAYLOAD_FILE" "$OUTDIR"
 
 echo "=================================================="
 echo "[+] Extraction Complete! Partition files in output_imgs:"
