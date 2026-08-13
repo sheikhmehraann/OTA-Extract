@@ -1,0 +1,84 @@
+name: OTA Extract (Full & Incremental)
+
+on:
+  workflow_dispatch:
+    inputs:
+      ota_url:
+        description: 'Direct Download URL to OTA ZIP or payload.bin'
+        required: true
+        type: string
+      ota_type:
+        description: 'OTA Type'
+        required: true
+        type: choice
+        options:
+          - FULL
+          - INCREMENTAL
+        default: 'FULL'
+      base_firmware_url:
+        description: 'Base Firmware URL (Required ONLY for INCREMENTAL OTAs)'
+        required: false
+        type: string
+      partitions:
+        description: 'Partitions to extract (e.g. "boot,init_boot,vendor_boot" or "all")'
+        required: false
+        default: 'all'
+        type: string
+      upload_target:
+        description: 'Upload Output Target'
+        required: true
+        type: choice
+        options:
+          - release
+          - pixeldrain
+          - gofile
+          - artifacts
+        default: 'release'
+
+permissions:
+  contents: write
+
+jobs:
+  extract-ota:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Free Runner Disk Space
+        run: |
+          chmod +x .github/workflows/cleanup_runner.sh
+          ./.github/workflows/cleanup_runner.sh
+
+      - name: Setup Tools & Dependencies
+        run: |
+          chmod +x bin/setup_dumper.sh
+          ./bin/setup_dumper.sh
+
+      - name: Execute OTA Payload Extraction
+        env:
+          OTA_URL: ${{ inputs.ota_url }}
+          OTA_TYPE: ${{ inputs.ota_type }}
+          BASE_FIRMWARE_URL: ${{ inputs.base_firmware_url }}
+          PARTITIONS: ${{ inputs.partitions }}
+        run: |
+          chmod +x scripts/extract_ota.sh
+          ./scripts/extract_ota.sh
+
+      - name: Deliver & Upload Extracted Output
+        if: ${{ inputs.upload_target != 'artifacts' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPLOAD_TARGET: ${{ inputs.upload_target }}
+        run: |
+          chmod +x scripts/upload_output.sh
+          ./scripts/upload_output.sh
+
+      - name: Upload Output as Workflow Artifact
+        if: ${{ inputs.upload_target == 'artifacts' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: extracted-ota-images
+          path: output_imgs/
+          retention-days: 7

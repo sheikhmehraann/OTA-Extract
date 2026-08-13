@@ -1,0 +1,17 @@
+# Work & Output directories
+work/
+base_imgs/
+output_imgs/
+*.zip
+*.bin
+*.tar.xz
+*.img
+
+# Temp files
+__pycache__/
+*.pyc
+.ds_store
+
+# Reference cloned repos (can be ignored or kept light)
+reference_repos/DumprX/
+reference_repos/DumprX_repo/
