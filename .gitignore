@@ -1,20 +1,25 @@
-# Work & Output directories
+# Work & Extraction Directories
 work/
 base_imgs/
 output_imgs/
-inspect_logs/
-inspect_logs2/
-inspect_logs3/
+
+# Inspection & Temporary Log Folders
+inspect_logs*/
+inspect_ota*/
+work_logs_*/
+reference_repos/
+*.log
+
+# Large Binaries & Packages
 *.zip
 *.bin
 *.tar.xz
 *.img
+*.7z
 
-# Temp files
+# Python Cache & IDE Files
 __pycache__/
 *.pyc
-.ds_store
-
-# Reference cloned repos
-reference_repos/DumprX/
-reference_repos/DumprX_repo/
+.DS_Store
+.idea/
+.vscode/

@@ -1,96 +1,80 @@
-# Cloud-Powered Android OTA Payload Extractor & Incremental-to-Full ROM Builder
-### Targeted for Infinix GT 20 Pro (X6871) — MediaTek Dimensity 8200 Ultimate (MT6896 / MT6895) & Transsion Devices
+# Cloud-Powered High-Speed Android OTA Extractor
 
-High-performance, automated tool to probe Transsion update servers, download Android OTA packages, and convert **Incremental (Delta) OTAs into 100% complete Full ROM partition images** (`init_boot.img`, `vendor_boot.img`, `system.img`, `vendor.img`, `product.img`, `vbmeta.img`) using cloud-powered GitHub Actions servers.
-
----
-
-## Technical Deep-Dive for Infinix GT 20 Pro (X6871)
-
-### 1. Chipset & Partition Layout
-- **Device**: Infinix GT 20 Pro (X6871)
-- **SoC**: MediaTek Dimensity 8200 Ultimate (`MT6896` / `MT6895`)
-- **Android Architecture**: Virtual A/B with EROFS / LZ4 compression
-- **Key Partitions**:
-  - `init_boot.img` (Contains ramdisk for Magisk / KernelSU root on Android 13/14)
-  - `vendor_boot.img` (Contains device device-tree blobs DTB and vendor ramdisk)
-  - `boot.img` (Contains GKI Linux kernel)
-  - `system.img`, `vendor.img`, `product.img`, `system_ext.img`, `odm.img`
+> High-performance, automated platform to parse, decompress, and extract **100% genuine partition images** (`product.img`, `system.img`, `system_ext.img`, `vendor.img`, `boot.img`, `init_boot.img`) from Android Full & Incremental OTA payloads (`payload.bin`) via cloud-powered GitHub Actions workflows.
 
 ---
 
-### 2. How Incremental-to-Full ROM Rebuilding Works
-Transsion frequently issues small **Incremental OTAs** (300MB – 1.5GB) for XOS updates. Standard payload dumpers cannot turn an incremental package into flashable partition images without base files.
+## 🔑 Key Features
 
-Our workflow solves this by running a **Block-Level Delta Patching Engine**:
+- **Universal Genuine Partition Extractor**: Extracted partitions contain 100% genuine decompressed binary data (`REPLACE_XZ` / `ZSTD`), automatically filtering out zero-fill delta placeholders.
+- **Zero-Base Incremental OTA Support**: Extract standalone replacement images directly from Google/Transsion/OEM Incremental updates without requiring base ROM files on disk.
+- **High-Speed Cloud Processing**: Cloud-runner execution powered by `aria2c` multi-connection down-stream and parallel LZMA/ZSTD block decompression.
+- **Automated Delivery Engine**: Instant delivery to **GoFile**, **Pixeldrain**, **GitHub Releases**, or **Workflow Artifacts**.
+
+---
+
+## 📐 Extraction & Architecture Flow
 
 ```mermaid
 graph TD
-    A[Base Firmware V1200 .img files] --> C[payload-dumper-go extract-diff Engine]
-    B[Infinix Incremental OTA payload.bin V1200->V1300] --> C
-    C --> D[Full Reconstructed ROM V1300 .img files]
-    D --> E[Extract init_boot.img / boot.img for Magisk/KernelSU Root]
-    D --> F[Flash Full System/Vendor Partitions via Fastboot]
+    A[Target OTA Download Link] --> B[GitHub Actions Cloud Runner]
+    B --> C[aria2c High-Speed Download]
+    C --> D[Protobuf DeltaArchiveManifest Parser]
+    D --> E{Operation Type Check}
+    E -->|REPLACE_XZ / ZSTD| F[Extract Genuine Partition Image]
+    E -->|BSDIFF Delta| G[Filter Out Zero Placeholders]
+    F --> H[ZIP Package Build]
+    H --> I[GoFile / Pixeldrain / Release Delivery]
 ```
-
-1. **Input Base Images**: Original partition files from previous build (`X6871-V1200`).
-2. **Input Delta Payload**: Incremental `payload.bin` from Transsion update (`X6871-V1200_to_V1300`).
-3. **Patching Engine**: Executes block operations (BSDIFF, PUFFDIFF, ZSTD, LZ4) against base images to generate the new build (`X6871-V1300`).
-4. **Output**: Full, flashable `.img` partition set for the target version.
 
 ---
 
-## Project Structure
+## 📁 Repository Architecture
 
 ```
-OTA Extract/
+OTA-Extract/
 ├── .github/
 │   └── workflows/
 │       ├── ota_extract.yml       # Cloud extraction GitHub Actions workflow
-│       └── cleanup_runner.sh     # Free up ~40GB disk space on GitHub runner
+│       └── cleanup_runner.sh     # Disk cleanup utility for runner space
 ├── bin/
-│   └── setup_dumper.sh           # Installs payload-dumper-go & tools
+│   └── setup_dumper.sh           # Binaries & Python dependencies initializer
 ├── scripts/
-│   ├── extract_ota.sh            # Extraction engine (Full & Incremental)
-│   ├── probe_infinix.py          # Transsion OTA API prober for Infinix X6871
-│   └── upload_output.sh          # Delivery engine (GitHub Release, Pixeldrain)
-├── reference_repos/
-│   └── transsion-ota-prober/     # Cloned reference repo by ramabondanp
-├── local_trigger.py              # CLI tool for triggering remote cloud workflow
-└── README.md                     # Documentation
+│   ├── auto_incremental_resolver.py # Multi-engine payload extraction orchestrator
+│   ├── raw_block_extractor.py       # Universal raw block extractor & protobuf parser
+│   ├── deep_inspect_imgs.py         # Binary header & non-zero chunk analyzer
+│   ├── extract_ota.sh               # Cloud environment execution wrapper
+│   ├── upload_gofile.py             # GoFile API upload engine
+│   ├── upload_output.sh             # Delivery orchestrator
+│   └── monitor_run.py               # GitHub Actions run status monitor
+├── local_trigger.py                 # Remote CLI workflow trigger
+└── README.md                        # Documentation
 ```
 
 ---
 
-## How to Use
+## 🚀 Quick Start & Usage
 
-### 1. Probe Transsion Servers for Infinix GT 20 Pro (X6871) Links
-Run the local prober script:
-```bash
-python scripts/probe_infinix.py X6871-V1200
-```
+### Triggering via Local CLI (`local_trigger.py`)
 
-### 2. Convert Incremental OTA to Full ROM (via GitHub Actions Cloud Server)
-
-#### Via Local CLI (`local_trigger.py`):
+#### Extract Incremental OTA to GoFile:
 ```bash
 python local_trigger.py \
-  -u "https://transsion-ota-link.com/X6871_incremental.zip" \
+  -u "https://android.googleapis.com/packages/ota-api/package/830826b787d24c4766f9564bd68afbb2e9221cc0.zip" \
   -t INCREMENTAL \
-  -b "https://transsion-ota-link.com/X6871_base_firmware.zip" \
-  -dest release
+  -dest gofile
 ```
 
-#### Extracting Only Rooting Partitions (`init_boot`, `vendor_boot`):
+#### Extract Rooting Partitions (`boot`, `init_boot`, `vendor_boot`):
 ```bash
 python local_trigger.py \
-  -u "https://transsion-ota-link.com/X6871_ota.zip" \
-  -p "init_boot,vendor_boot,boot,vbmeta" \
-  -dest pixeldrain
+  -u "https://ota-link-example.com/target_ota.zip" \
+  -p "boot,init_boot,vendor_boot" \
+  -dest gofile
 ```
 
 ---
 
-## References & Cloned Repositories
-- [`reference_repos/transsion-ota-prober`](file:///C:/Users/Admin/Videos/Github/OTA%20Extract/reference_repos/transsion-ota-prober) - Official Transsion OTA Prober by `ramabondanp`.
-- [xishang0128/payload-dumper-go](https://github.com/xishang0128/payload-dumper-go) - Go-based incremental diff extractor engine.
+## 🛡️ License
+
+Distributed under the MIT License. See `LICENSE` for more information.
