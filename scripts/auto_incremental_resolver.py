@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
 Auto Incremental Payload Resolver Engine
-Reconstructs 100% full replacement partition images (boot, vendor_boot, init_boot, dtbo, vbmeta, md1img, preloader, lk)
-from Incremental payload.bin files using YuKongA Rust Engine + Python fallbacks.
+Extracts full replacement partition images and resolves matching base payloads.
 """
 
 import os
@@ -19,10 +18,10 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
     print("==================================================")
     print("[+] Auto Incremental Resolver Engine Initiated")
     print(f"[+] Target Payload: {payload_path}")
-    if base_dir and os.path.exists(base_dir):
+    if base_dir and os.path.exists(base_dir) and os.listdir(base_dir):
         print(f"[+] Base Firmware Directory: {base_dir}")
     else:
-        print("[!] Extracting all replacement & diff partitions...")
+        print("[!] No base directory supplied — executing multi-engine extraction...")
     print("==================================================")
 
     # 1. Engine #1: YuKongA payload-extract (Rust)
@@ -33,7 +32,6 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
         else:
             cmd = [rust_dumper, "extract", payload_path, "-o", output_dir]
         res = subprocess.run(cmd, check=False)
-        print(f"  [-] YuKongA Rust engine exit code: {res.returncode}")
 
     # 2. Engine #2: payload-dumper-go (Go)
     if os.path.exists(go_dumper) and os.access(go_dumper, os.X_OK):
@@ -47,9 +45,9 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
         cmd = ["python3", py_dumper, "--out", output_dir, payload_path]
         subprocess.run(cmd, check=False)
 
-    # 4. Filter out empty or zero-byte placeholders (< 4KB)
+    # 4. Filter & Keep all valid partition files (> 0 bytes)
     print("\n==================================================")
-    print("[+] Validating Partition Images...")
+    print("[+] Validating Extracted Partition Images...")
     print("==================================================")
 
     valid_images = []
@@ -59,20 +57,20 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
         fpath = os.path.join(output_dir, fname)
         if os.path.isfile(fpath):
             size = os.path.getsize(fpath)
-            if size <= 4096:
-                print(f"  [-] Purging placeholder header: {fname} ({size} bytes)")
+            if size == 0:
+                print(f"  [-] Removing 0-byte file: {fname}")
                 os.remove(fpath)
             else:
                 valid_images.append(fname)
                 total_bytes += size
-                print(f"  [✓] REAL PARTITION IMAGE: {fname:<25} ({size / 1024 / 1024:.2f} MB)")
+                print(f"  [✓] EXTRACTED PARTITION: {fname:<25} ({size / 1024 / 1024:.2f} MB)")
 
     print("==================================================")
-    print(f"[SUCCESS] Total Valid Real Partition Images: {len(valid_images)} ({total_bytes / 1024 / 1024:.2f} MB total)")
+    print(f"[SUCCESS] Total Extracted Partition Files: {len(valid_images)} ({total_bytes / 1024 / 1024:.2f} MB total)")
     print("==================================================")
 
     if not valid_images:
-        print("[!] Error: No valid partition images could be extracted.")
+        print("[!] Error: No partition images could be extracted.")
         sys.exit(1)
 
 if __name__ == "__main__":
