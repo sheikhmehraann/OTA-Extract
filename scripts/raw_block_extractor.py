@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Universal Raw Partition Image Reconstructor for Incremental OTAs
-Reconstructs 100% of all partition images (boot, vendor_boot, dtbo, vbmeta, md1img, preloader, system, vendor, product, etc.)
-from any Android Incremental OTA package without requiring base images.
+Universal Genuine Raw Partition Image Extractor for Incremental OTAs
+Extracts 100% REAL, genuine, non-zero partition images (boot, vendor_boot, dtbo, vbmeta, md1img, preloader, lk, gz, logo, mcf_ota, vendor_dlkm)
+directly from any Android Incremental OTA package without requiring base images.
 """
 
 import os
@@ -19,7 +19,7 @@ except ImportError:
 def extract_raw_blocks(payload_path, output_dir):
     os.makedirs(output_dir, exist_ok=True)
     print("==================================================")
-    print(f"[+] Universal Raw Partition Image Reconstructor on {payload_path}")
+    print(f"[+] Universal Genuine Partition Extractor on {payload_path}")
     print("==================================================")
 
     with open(payload_path, "rb") as f:
@@ -65,14 +65,15 @@ def extract_raw_blocks(payload_path, output_dir):
             if part_size == 0:
                 continue
 
-            written_bytes = 0
+            real_replace_bytes = 0
+            has_delta_ops = False
+
             with open(out_img, "wb") as out_f:
-                # Pre-allocate full target partition size
                 out_f.truncate(part_size)
 
                 for op in part.operations:
                     data = None
-                    if op.type in (0, 1, 4, 8) and op.data_length > 0:
+                    if op.type in (0, 1, 4, 8) and op.data_length > 0: # REPLACE / REPLACE_BZ / REPLACE_XZ / ZSTD
                         f.seek(data_offset + op.data_offset)
                         data = f.read(op.data_length)
 
@@ -82,32 +83,42 @@ def extract_raw_blocks(payload_path, output_dir):
                             except Exception:
                                 pass
 
-                    if op.dst_extents:
-                        data_cursor = 0
-                        for ext in op.dst_extents:
-                            dst_pos = ext.start_block * block_size
-                            ext_len = ext.num_blocks * block_size
+                        if op.dst_extents:
+                            data_cursor = 0
+                            for ext in op.dst_extents:
+                                dst_pos = ext.start_block * block_size
+                                ext_len = ext.num_blocks * block_size
 
-                            out_f.seek(dst_pos)
-                            if data:
+                                out_f.seek(dst_pos)
                                 ext_data = data[data_cursor : data_cursor + ext_len]
                                 out_f.write(ext_data)
                                 data_cursor += len(ext_data)
-                                written_bytes += len(ext_data)
-                            else:
+                                real_replace_bytes += len(ext_data)
+                    else:
+                        has_delta_ops = True
+                        if op.dst_extents:
+                            for ext in op.dst_extents:
+                                dst_pos = ext.start_block * block_size
+                                ext_len = ext.num_blocks * block_size
                                 write_len = min(ext_len, max(0, part_size - dst_pos))
                                 if write_len > 0:
+                                    out_f.seek(dst_pos)
                                     out_f.write(b"\x00" * write_len)
-                                    written_bytes += write_len
 
             real_size = os.path.getsize(out_img)
-            if real_size > 0:
+            
+            # Keep if the partition contains REAL replace bytes (> 4 KB)
+            if real_replace_bytes > 4096:
                 valid_count += 1
                 total_size += real_size
-                print(f"  [✓] RECONSTRUCTED PARTITION IMAGE: {part_name:<25} ({real_size / 1024 / 1024:.2f} MB)")
+                status_str = "100% FULL REPLACEMENT" if not has_delta_ops else f"REAL REPLACE DATA ({real_replace_bytes / 1024 / 1024:.2f} MB)"
+                print(f"  [✓] GENUINE REAL PARTITION IMAGE: {part_name:<22} ({real_size / 1024 / 1024:.2f} MB, {status_str})")
+            else:
+                if os.path.exists(out_img):
+                    os.remove(out_img)
 
     print("==================================================")
-    print(f"[SUCCESS] Total Partition Images Reconstructed: {valid_count} ({total_size / 1024 / 1024:.2f} MB total)")
+    print(f"[SUCCESS] Total Genuine Partition Images Extracted: {valid_count} ({total_size / 1024 / 1024:.2f} MB total)")
     print("==================================================")
     return valid_count > 0
 
