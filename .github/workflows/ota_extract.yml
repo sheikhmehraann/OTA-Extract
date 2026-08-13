@@ -8,15 +8,15 @@ on:
         required: true
         type: string
       ota_type:
-        description: 'OTA Type'
+        description: 'OTA Payload Type'
         required: true
         type: choice
         options:
           - FULL
           - INCREMENTAL
-        default: 'FULL'
+        default: 'INCREMENTAL'
       base_firmware_url:
-        description: 'Base Firmware URL (Required ONLY for INCREMENTAL OTAs)'
+        description: 'Base Firmware URL (Optional)'
         required: false
         type: string
       partitions:
@@ -25,38 +25,39 @@ on:
         default: 'all'
         type: string
       upload_target:
-        description: 'Upload Output Target'
+        description: 'Upload Destination'
         required: true
         type: choice
         options:
+          - gofile
           - release
           - pixeldrain
-          - gofile
           - artifacts
-        default: 'release'
+        default: 'gofile'
 
 permissions:
   contents: write
 
 jobs:
   extract-ota:
+    name: Android OTA Extraction Engine
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Codebase
         uses: actions/checkout@v4
 
-      - name: Free Runner Disk Space
+      - name: Optimize Runner Disk Allocation
         run: |
           chmod +x .github/workflows/cleanup_runner.sh
           ./.github/workflows/cleanup_runner.sh
 
-      - name: Setup Tools & Dependencies
+      - name: Initialize Extraction Toolchain & Binaries
         run: |
           chmod +x bin/setup_dumper.sh
           ./bin/setup_dumper.sh
 
-      - name: Execute OTA Payload Extraction
+      - name: Execute High-Performance Payload Extraction
         env:
           OTA_URL: ${{ inputs.ota_url }}
           OTA_TYPE: ${{ inputs.ota_type }}
@@ -66,7 +67,7 @@ jobs:
           chmod +x scripts/extract_ota.sh
           ./scripts/extract_ota.sh
 
-      - name: Deliver & Upload Extracted Output
+      - name: Package & Deliver Extracted Firmware Output
         if: ${{ inputs.upload_target != 'artifacts' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -75,7 +76,7 @@ jobs:
           chmod +x scripts/upload_output.sh
           ./scripts/upload_output.sh
 
-      - name: Upload Output as Workflow Artifact
+      - name: Archive Output Artifacts
         if: ${{ inputs.upload_target == 'artifacts' }}
         uses: actions/upload-artifact@v4
         with:
