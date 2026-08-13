@@ -27,11 +27,11 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
     print("==================================================")
 
     # 1. Try YuKongA payload-extract Rust engine first if base_dir is supplied
-    if base_dir and os.path.exists(base_dir) and os.exists(rust_dumper):
+    if base_dir and os.path.exists(base_dir) and os.path.exists(rust_dumper):
         print("[+] Running YuKongA payload-extract with --source-dir...")
         cmd = [rust_dumper, "extract", payload_path, "-o", output_dir, "--source-dir", base_dir]
         subprocess.run(cmd, check=False)
-    elif base_dir and os.path.exists(base_dir) and os.exists(go_dumper):
+    elif base_dir and os.path.exists(base_dir) and os.path.exists(go_dumper):
         print("[+] Running payload-dumper-go with -old...")
         cmd = [go_dumper, "-o", output_dir, "-old", base_dir, payload_path]
         subprocess.run(cmd, check=False)
@@ -49,7 +49,7 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
             cmd = [go_dumper, "-o", output_dir, "-p", part, payload_path]
             subprocess.run(cmd, check=False)
 
-    # 4. Filter out zero-byte or 8KB empty placeholders (< 64KB)
+    # 4. Filter out zero-byte or 8KB empty placeholders (< 4KB)
     print("\n==================================================")
     print("[+] Validating Partition Images...")
     print("==================================================")
@@ -61,8 +61,8 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
         fpath = os.path.join(output_dir, fname)
         if os.path.isfile(fpath):
             size = os.path.getsize(fpath)
-            # Remove dummy 8KB headers for system/vendor when no base firmware was supplied
-            if size < 65536:
+            # Purge 0-byte or empty placeholder headers
+            if size <= 4096:
                 print(f"  [-] Purging placeholder header: {fname} ({size} bytes)")
                 os.remove(fpath)
             else:
@@ -73,14 +73,6 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
     print("==================================================")
     print(f"[SUCCESS] Total Valid Real Partition Images: {len(valid_images)} ({total_bytes / 1024 / 1024:.2f} MB total)")
     print("==================================================")
-
-    if not valid_images:
-        print("[!] Warning: All partitions were diff-only. Force extracting replace blocks...")
-        # Emergency fallback: keep all files larger than 1KB
-        for fname in sorted(os.listdir(output_dir)):
-            fpath = os.path.join(output_dir, fname)
-            if os.path.isfile(fpath) and os.path.getsize(fpath) > 1024:
-                valid_images.append(fname)
 
 if __name__ == "__main__":
     p_file = sys.argv[1] if len(sys.argv) > 1 else "work/payload.bin"

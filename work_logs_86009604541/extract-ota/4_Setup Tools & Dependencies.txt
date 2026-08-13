@@ -1,0 +1,136 @@
+﻿2026-08-13T13:36:10.7851493Z ##[group]Run chmod +x bin/setup_dumper.sh
+2026-08-13T13:36:10.7851919Z [36;1mchmod +x bin/setup_dumper.sh[0m
+2026-08-13T13:36:10.7852180Z [36;1m./bin/setup_dumper.sh[0m
+2026-08-13T13:36:10.7874958Z shell: /usr/bin/bash -e {0}
+2026-08-13T13:36:10.7875431Z ##[endgroup]
+2026-08-13T13:36:10.7935587Z ==================================================
+2026-08-13T13:36:10.7936058Z [+] Setting up High-Performance Dependencies...
+2026-08-13T13:36:10.7936502Z ==================================================
+2026-08-13T13:36:17.6547086Z Reading package lists...
+2026-08-13T13:36:17.7809461Z Building dependency tree...
+2026-08-13T13:36:17.7816086Z Reading state information...
+2026-08-13T13:36:17.9162131Z aria2 is already the newest version (1.37.0+debian-1build3).
+2026-08-13T13:36:17.9162939Z p7zip-full is already the newest version (16.02+transitional.1).
+2026-08-13T13:36:17.9164067Z brotli is already the newest version (1.1.0-2build2).
+2026-08-13T13:36:17.9164454Z python3 is already the newest version (3.12.3-0ubuntu2.1).
+2026-08-13T13:36:17.9165025Z python3-pip is already the newest version (24.0+dfsg-1ubuntu1.3).
+2026-08-13T13:36:17.9165525Z python3-setuptools is already the newest version (68.1.2-2ubuntu1.2).
+2026-08-13T13:36:17.9165958Z python3-setuptools set to manually installed.
+2026-08-13T13:36:17.9166389Z curl is already the newest version (8.5.0-2ubuntu10.11).
+2026-08-13T13:36:17.9166819Z jq is already the newest version (1.7.1-3ubuntu0.24.04.2).
+2026-08-13T13:36:17.9167251Z xz-utils is already the newest version (5.6.1+really5.4.5-1ubuntu0.3).
+2026-08-13T13:36:17.9167739Z The following additional packages will be installed:
+2026-08-13T13:36:17.9168102Z   libssl3t64 openssl
+2026-08-13T13:36:17.9168774Z Suggested packages:
+2026-08-13T13:36:17.9169048Z   libssl-doc
+2026-08-13T13:36:17.9317554Z The following packages will be upgraded:
+2026-08-13T13:36:17.9319113Z   libssl-dev libssl3t64 openssl
+2026-08-13T13:36:17.9446197Z 3 upgraded, 0 newly installed, 0 to remove and 94 not upgraded.
+2026-08-13T13:36:17.9446830Z Need to get 5353 kB of archives.
+2026-08-13T13:36:17.9447233Z After this operation, 0 B of additional disk space will be used.
+2026-08-13T13:36:17.9447670Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-08-13T13:36:18.0174639Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libssl-dev amd64 3.0.13-0ubuntu3.12 [2408 kB]
+2026-08-13T13:36:18.0915485Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libssl3t64 amd64 3.0.13-0ubuntu3.12 [1942 kB]
+2026-08-13T13:36:18.1596359Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 openssl amd64 3.0.13-0ubuntu3.12 [1003 kB]
+2026-08-13T13:36:18.3585232Z Fetched 5353 kB in 0s (22.9 MB/s)
+2026-08-13T13:36:18.4202582Z (Reading database ... 
+2026-08-13T13:36:18.4203073Z (Reading database ... 5%
+2026-08-13T13:36:18.4203467Z (Reading database ... 10%
+2026-08-13T13:36:18.4203803Z (Reading database ... 15%
+2026-08-13T13:36:18.4204076Z (Reading database ... 20%
+2026-08-13T13:36:18.4204389Z (Reading database ... 25%
+2026-08-13T13:36:18.4204674Z (Reading database ... 30%
+2026-08-13T13:36:18.4204925Z (Reading database ... 35%
+2026-08-13T13:36:18.4205218Z (Reading database ... 40%
+2026-08-13T13:36:18.4205471Z (Reading database ... 45%
+2026-08-13T13:36:18.4205745Z (Reading database ... 50%
+2026-08-13T13:36:18.4243709Z (Reading database ... 55%
+2026-08-13T13:36:18.4970555Z (Reading database ... 60%
+2026-08-13T13:36:18.6937390Z (Reading database ... 65%
+2026-08-13T13:36:18.8946416Z (Reading database ... 70%
+2026-08-13T13:36:18.9941989Z (Reading database ... 75%
+2026-08-13T13:36:19.3870143Z (Reading database ... 80%
+2026-08-13T13:36:19.8630732Z (Reading database ... 85%
+2026-08-13T13:36:20.0536744Z (Reading database ... 90%
+2026-08-13T13:36:20.1560487Z (Reading database ... 95%
+2026-08-13T13:36:20.1561046Z (Reading database ... 100%
+2026-08-13T13:36:20.1561591Z (Reading database ... 202954 files and directories currently installed.)
+2026-08-13T13:36:20.1603940Z Preparing to unpack .../libssl-dev_3.0.13-0ubuntu3.12_amd64.deb ...
+2026-08-13T13:36:20.1648041Z Unpacking libssl-dev:amd64 (3.0.13-0ubuntu3.12) over (3.0.13-0ubuntu3.11) ...
+2026-08-13T13:36:20.5697155Z Preparing to unpack .../libssl3t64_3.0.13-0ubuntu3.12_amd64.deb ...
+2026-08-13T13:36:20.5758289Z Unpacking libssl3t64:amd64 (3.0.13-0ubuntu3.12) over (3.0.13-0ubuntu3.11) ...
+2026-08-13T13:36:20.6545463Z Setting up libssl3t64:amd64 (3.0.13-0ubuntu3.12) ...
+2026-08-13T13:36:20.7449472Z (Reading database ... 
+2026-08-13T13:36:20.7449873Z (Reading database ... 5%
+2026-08-13T13:36:20.7450104Z (Reading database ... 10%
+2026-08-13T13:36:20.7450331Z (Reading database ... 15%
+2026-08-13T13:36:20.7450539Z (Reading database ... 20%
+2026-08-13T13:36:20.7450732Z (Reading database ... 25%
+2026-08-13T13:36:20.7450973Z (Reading database ... 30%
+2026-08-13T13:36:20.7451185Z (Reading database ... 35%
+2026-08-13T13:36:20.7451648Z (Reading database ... 40%
+2026-08-13T13:36:20.7452148Z (Reading database ... 45%
+2026-08-13T13:36:20.7452362Z (Reading database ... 50%
+2026-08-13T13:36:20.7456623Z (Reading database ... 55%
+2026-08-13T13:36:20.7548584Z (Reading database ... 60%
+2026-08-13T13:36:20.7571661Z (Reading database ... 65%
+2026-08-13T13:36:20.7592065Z (Reading database ... 70%
+2026-08-13T13:36:20.7616517Z (Reading database ... 75%
+2026-08-13T13:36:20.7648692Z (Reading database ... 80%
+2026-08-13T13:36:20.7771980Z (Reading database ... 85%
+2026-08-13T13:36:20.7845191Z (Reading database ... 90%
+2026-08-13T13:36:20.8068873Z (Reading database ... 95%
+2026-08-13T13:36:20.8069878Z (Reading database ... 100%
+2026-08-13T13:36:20.8070757Z (Reading database ... 202954 files and directories currently installed.)
+2026-08-13T13:36:20.8108348Z Preparing to unpack .../openssl_3.0.13-0ubuntu3.12_amd64.deb ...
+2026-08-13T13:36:20.8490280Z Unpacking openssl (3.0.13-0ubuntu3.12) over (3.0.13-0ubuntu3.11) ...
+2026-08-13T13:36:20.9863644Z Setting up libssl-dev:amd64 (3.0.13-0ubuntu3.12) ...
+2026-08-13T13:36:20.9900314Z Setting up openssl (3.0.13-0ubuntu3.12) ...
+2026-08-13T13:36:21.0066664Z Processing triggers for man-db (2.12.0-4build2) ...
+2026-08-13T13:36:21.0089611Z Not building database; man-db/auto-update is not 'true'.
+2026-08-13T13:36:21.0106524Z Processing triggers for libc-bin (2.39-0ubuntu8.7) ...
+2026-08-13T13:36:25.6345854Z 
+2026-08-13T13:36:25.6346689Z Running kernel seems to be up-to-date.
+2026-08-13T13:36:25.6347015Z 
+2026-08-13T13:36:25.6347117Z Restarting services...
+2026-08-13T13:36:25.6635809Z  /etc/needrestart/restart.d/systemd-manager
+2026-08-13T13:36:25.8674664Z  systemctl restart packagekit.service php8.3-fpm.service systemd-journald.service systemd-networkd.service systemd-resolved.service systemd-udevd.service udisks2.service
+2026-08-13T13:36:25.9760835Z 
+2026-08-13T13:36:25.9762358Z Service restarts being deferred:
+2026-08-13T13:36:25.9763171Z  systemctl restart hosted-compute-agent.service
+2026-08-13T13:36:25.9763785Z  systemctl restart systemd-logind.service
+2026-08-13T13:36:25.9764310Z  systemctl restart walinuxagent.service
+2026-08-13T13:36:25.9764606Z 
+2026-08-13T13:36:25.9764860Z No containers need to be restarted.
+2026-08-13T13:36:25.9765118Z 
+2026-08-13T13:36:25.9765266Z User sessions running outdated binaries:
+2026-08-13T13:36:25.9765644Z  runner @ user manager service: systemd[850]
+2026-08-13T13:36:25.9845136Z 
+2026-08-13T13:36:25.9845750Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-08-13T13:36:26.6569813Z [+] Installing Python payload extraction requirements...
+2026-08-13T13:36:27.5323329Z Defaulting to user installation because normal site-packages is not writeable
+2026-08-13T13:36:28.4470841Z Collecting protobuf
+2026-08-13T13:36:28.5126870Z   Downloading protobuf-7.35.1-cp310-abi3-manylinux2014_x86_64.whl.metadata (595 bytes)
+2026-08-13T13:36:28.5673072Z Collecting bsdiff4
+2026-08-13T13:36:28.5811917Z   Downloading bsdiff4-1.2.6-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.8 kB)
+2026-08-13T13:36:28.6790887Z Collecting brotli
+2026-08-13T13:36:28.6917963Z   Downloading brotli-1.2.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (6.1 kB)
+2026-08-13T13:36:28.7099685Z Downloading protobuf-7.35.1-cp310-abi3-manylinux2014_x86_64.whl (327 kB)
+2026-08-13T13:36:28.7656523Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 327.1/327.1 kB 5.9 MB/s eta 0:00:00
+2026-08-13T13:36:28.7782844Z Downloading bsdiff4-1.2.6-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (33 kB)
+2026-08-13T13:36:28.7944025Z Downloading brotli-1.2.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.4 MB)
+2026-08-13T13:36:28.8648550Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.4/1.4 MB 20.5 MB/s eta 0:00:00
+2026-08-13T13:36:29.1268607Z Installing collected packages: bsdiff4, brotli, protobuf
+2026-08-13T13:36:29.2804457Z Successfully installed brotli-1.2.0 bsdiff4-1.2.6 protobuf-7.35.1
+2026-08-13T13:36:29.3583555Z [+] Downloading YuKongA payload-extract Rust binary...
+2026-08-13T13:36:29.5439904Z [+] Setting up payload-dumper-go...
+2026-08-13T13:36:30.1155211Z [+] Downloading Python payload_dumper...
+2026-08-13T13:36:30.4804065Z ==================================================
+2026-08-13T13:36:30.4804945Z [+] Tools successfully installed in /home/runner/work/OTA-Extract/OTA-Extract/bin!
+2026-08-13T13:36:30.4815607Z total 6.8M
+2026-08-13T13:36:30.4815956Z -rwxr-xr-x 1 runner runner 6.7M May 30  2022 payload-dumper-go
+2026-08-13T13:36:30.4816452Z -rw-r--r-- 1 runner runner 9.6K Aug 13 13:36 payload_dumper.py
+2026-08-13T13:36:30.4816880Z -rw-r--r-- 1 runner runner 5.1K Aug 13 13:36 sdat2img.py
+2026-08-13T13:36:30.4817313Z -rwxr-xr-x 1 runner runner 3.0K Aug 13 13:30 setup_dumper.sh
+2026-08-13T13:36:30.4817778Z -rw-r--r-- 1 runner runner 8.3K Aug 13 13:36 update_metadata_pb2.py
+2026-08-13T13:36:30.4818138Z ==================================================
