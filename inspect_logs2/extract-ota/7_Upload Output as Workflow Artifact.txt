@@ -1,0 +1,25 @@
+﻿2026-08-13T12:52:15.2496296Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-13T12:52:15.2498532Z ##[group]Run actions/upload-artifact@v4
+2026-08-13T12:52:15.2498803Z with:
+2026-08-13T12:52:15.2499019Z   name: extracted-ota-images
+2026-08-13T12:52:15.2499260Z   path: output_imgs/
+2026-08-13T12:52:15.2499468Z   retention-days: 7
+2026-08-13T12:52:15.2499678Z   if-no-files-found: warn
+2026-08-13T12:52:15.2499904Z   compression-level: 6
+2026-08-13T12:52:15.2500114Z   overwrite: false
+2026-08-13T12:52:15.2500322Z   include-hidden-files: false
+2026-08-13T12:52:15.2500557Z ##[endgroup]
+2026-08-13T12:52:15.4158887Z (node:2855) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-13T12:52:15.4159772Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-13T12:52:15.4265703Z With the provided path, there will be 39 files uploaded
+2026-08-13T12:52:15.4271138Z Artifact name is valid!
+2026-08-13T12:52:15.4271538Z Root directory input is valid!
+2026-08-13T12:52:15.6240453Z Beginning upload of artifact content to blob storage
+2026-08-13T12:52:15.6759763Z (node:2855) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-08-13T12:52:15.7931121Z Uploaded bytes 10725
+2026-08-13T12:52:15.8306429Z Finished uploading artifact content to blob storage!
+2026-08-13T12:52:15.8307388Z SHA256 digest of uploaded artifact zip is c2e6cc5ed0ce7c9ebb8d135355b98922a928eba2ea1f15ea8d480a5178a5dccb
+2026-08-13T12:52:15.8310027Z Finalizing artifact upload
+2026-08-13T12:52:16.0215864Z Artifact extracted-ota-images.zip successfully finalized. Artifact ID 9181644832
+2026-08-13T12:52:16.0217093Z Artifact extracted-ota-images has been successfully uploaded! Final size is 10725 bytes. Artifact ID is 9181644832
+2026-08-13T12:52:16.0223518Z Artifact download URL: https://github.com/sheikhmehraann/OTA-Extract/actions/runs/31701943317/artifacts/9181644832

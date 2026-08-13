@@ -25,16 +25,11 @@ cd ..
 echo "Compressed package size:"
 ls -lh "$ARCHIVE_NAME"
 
-UPLOAD_TARGET="${UPLOAD_TARGET:-release}"
+UPLOAD_TARGET="${UPLOAD_TARGET:-gofile}"
 
-if [ "$UPLOAD_TARGET" == "release" ] || [ "$UPLOAD_TARGET" == "github" ]; then
-    echo "[+] Creating GitHub Release tag $TAG_NAME..."
-    gh release create "$TAG_NAME" "$ARCHIVE_NAME" \
-        --title "OTA Extract Output ($BUILD_ID)" \
-        --notes "Extracted partition images from OTA update package." || {
-            echo "[!] GitHub release creation via gh CLI failed or token omitted. Uploading via Pixeldrain fallback..."
-            UPLOAD_TARGET="pixeldrain"
-        }
+if [ "$UPLOAD_TARGET" == "gofile" ]; then
+    echo "[+] Executing GoFile Upload..."
+    python3 scripts/upload_gofile.py "$ARCHIVE_NAME" || UPLOAD_TARGET="pixeldrain"
 fi
 
 if [ "$UPLOAD_TARGET" == "pixeldrain" ]; then
@@ -43,23 +38,23 @@ if [ "$UPLOAD_TARGET" == "pixeldrain" ]; then
     FILE_ID=$(echo "$RESPONSE" | jq -r '.id')
     if [ -n "$FILE_ID" ] && [ "$FILE_ID" != "null" ]; then
         echo "=================================================="
-        echo "[SUCCESS] Download URL: https://pixeldrain.com/u/$FILE_ID"
+        echo "[SUCCESS] Pixeldrain Download URL: https://pixeldrain.com/u/$FILE_ID"
         echo "=================================================="
     else
         echo "[!] Pixeldrain upload failed: $RESPONSE"
     fi
 fi
 
-if [ "$UPLOAD_TARGET" == "gofile" ]; then
-    echo "[+] Uploading to GoFile..."
-    SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers[0].name')
-    if [ -n "$SERVER" ] && [ "$SERVER" != "null" ]; then
-        RESPONSE=$(curl -s -F "file=@$ARCHIVE_NAME" "https://${SERVER}.gofile.io/contents/uploadfile")
-        DOWNLOAD_PAGE=$(echo "$RESPONSE" | jq -r '.data.downloadPage')
-        echo "=================================================="
-        echo "[SUCCESS] GoFile Download URL: $DOWNLOAD_PAGE"
-        echo "=================================================="
-    fi
+if [ "$UPLOAD_TARGET" == "release" ] || [ "$UPLOAD_TARGET" == "github" ]; then
+    echo "[+] Creating GitHub Release tag $TAG_NAME..."
+    gh release create "$TAG_NAME" "$ARCHIVE_NAME" \
+        --title "OTA Extract Output ($BUILD_ID)" \
+        --notes "Extracted partition images from OTA update package." || {
+            echo "[!] GitHub release creation via gh CLI failed. Fallback to GoFile..."
+            python3 scripts/upload_gofile.py "$ARCHIVE_NAME"
+        }
 fi
 
-echo "[+] Finished delivery step!"
+echo "=================================================="
+echo "[+] Finished Delivery Engine Step!"
+echo "=================================================="

@@ -1,0 +1,74 @@
+﻿2026-08-13T12:50:29.4423854Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-13T12:50:29.4433077Z ##[group]Run actions/checkout@v4
+2026-08-13T12:50:29.4433779Z with:
+2026-08-13T12:50:29.4434233Z   repository: sheikhmehraann/OTA-Extract
+2026-08-13T12:50:29.4438341Z   token: ***
+2026-08-13T12:50:29.4438776Z   ssh-strict: true
+2026-08-13T12:50:29.4439210Z   ssh-user: git
+2026-08-13T12:50:29.4439647Z   persist-credentials: true
+2026-08-13T12:50:29.4440123Z   clean: true
+2026-08-13T12:50:29.4440608Z   sparse-checkout-cone-mode: true
+2026-08-13T12:50:29.4441121Z   fetch-depth: 1
+2026-08-13T12:50:29.4441551Z   fetch-tags: false
+2026-08-13T12:50:29.4441984Z   show-progress: true
+2026-08-13T12:50:29.4442413Z   lfs: false
+2026-08-13T12:50:29.4442815Z   submodules: false
+2026-08-13T12:50:29.4443314Z   set-safe-directory: true
+2026-08-13T12:50:29.4443802Z   allow-unsafe-pr-checkout: false
+2026-08-13T12:50:29.4444497Z ##[endgroup]
+2026-08-13T12:50:29.5510743Z Syncing repository: sheikhmehraann/OTA-Extract
+2026-08-13T12:50:29.5513669Z ##[group]Getting Git version info
+2026-08-13T12:50:29.5514882Z Working directory is '/home/runner/work/OTA-Extract/OTA-Extract'
+2026-08-13T12:50:29.5516476Z [command]/usr/bin/git version
+2026-08-13T12:50:29.6795517Z git version 2.54.0
+2026-08-13T12:50:29.6848068Z ##[endgroup]
+2026-08-13T12:50:29.6864661Z Temporarily overriding HOME='/home/runner/work/_temp/717cd759-92eb-4005-a7e2-283815a6b872' before making global git config changes
+2026-08-13T12:50:29.6866087Z Adding repository directory to the temporary git global config as a safe directory
+2026-08-13T12:50:29.6870798Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/OTA-Extract/OTA-Extract
+2026-08-13T12:50:29.7125755Z Deleting the contents of '/home/runner/work/OTA-Extract/OTA-Extract'
+2026-08-13T12:50:29.7130656Z ##[group]Initializing the repository
+2026-08-13T12:50:29.7136203Z [command]/usr/bin/git init /home/runner/work/OTA-Extract/OTA-Extract
+2026-08-13T12:50:29.7622757Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-08-13T12:50:29.7624581Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-08-13T12:50:29.7626402Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-08-13T12:50:29.7628148Z hint: call:
+2026-08-13T12:50:29.7629182Z hint:
+2026-08-13T12:50:29.7629904Z hint: 	git config --global init.defaultBranch <name>
+2026-08-13T12:50:29.7630636Z hint:
+2026-08-13T12:50:29.7631212Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-08-13T12:50:29.7632114Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-08-13T12:50:29.7632825Z hint:
+2026-08-13T12:50:29.7633225Z hint: 	git branch -m <name>
+2026-08-13T12:50:29.7633733Z hint:
+2026-08-13T12:50:29.7634330Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-08-13T12:50:29.7635676Z Initialized empty Git repository in /home/runner/work/OTA-Extract/OTA-Extract/.git/
+2026-08-13T12:50:29.7638306Z [command]/usr/bin/git remote add origin https://github.com/sheikhmehraann/OTA-Extract
+2026-08-13T12:50:29.7885598Z ##[endgroup]
+2026-08-13T12:50:29.7886490Z ##[group]Disabling automatic garbage collection
+2026-08-13T12:50:29.7890391Z [command]/usr/bin/git config --local gc.auto 0
+2026-08-13T12:50:29.7929579Z ##[endgroup]
+2026-08-13T12:50:29.7930362Z ##[group]Setting up auth
+2026-08-13T12:50:29.7936726Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-08-13T12:50:29.7976829Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-08-13T12:50:30.0382957Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-08-13T12:50:30.0422869Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-08-13T12:50:30.0669596Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-08-13T12:50:30.0712052Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-08-13T12:50:30.0958599Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-08-13T12:50:30.0999860Z ##[endgroup]
+2026-08-13T12:50:30.1001295Z ##[group]Fetching the repository
+2026-08-13T12:50:30.1010821Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +4e775c316df53a533227e2e7b5a5b103647683f8:refs/remotes/origin/main
+2026-08-13T12:50:30.5215777Z From https://github.com/sheikhmehraann/OTA-Extract
+2026-08-13T12:50:30.5216749Z  * [new ref]         4e775c316df53a533227e2e7b5a5b103647683f8 -> origin/main
+2026-08-13T12:50:30.5443642Z ##[endgroup]
+2026-08-13T12:50:30.5444696Z ##[group]Determining the checkout info
+2026-08-13T12:50:30.5446976Z ##[endgroup]
+2026-08-13T12:50:30.5455923Z [command]/usr/bin/git sparse-checkout disable
+2026-08-13T12:50:30.5558004Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-08-13T12:50:30.5596409Z ##[group]Checking out the ref
+2026-08-13T12:50:30.5601737Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-08-13T12:50:30.5712127Z Switched to a new branch 'main'
+2026-08-13T12:50:30.5714731Z branch 'main' set up to track 'origin/main'.
+2026-08-13T12:50:30.5721733Z ##[endgroup]
+2026-08-13T12:50:30.5779200Z [command]/usr/bin/git log -1 --format=%H
+2026-08-13T12:50:30.5810304Z 4e775c316df53a533227e2e7b5a5b103647683f8

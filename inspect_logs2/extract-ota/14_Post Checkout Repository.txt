@@ -1,0 +1,11 @@
+﻿2026-08-13T12:52:16.0437480Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-13T12:52:16.0438786Z Post job cleanup.
+2026-08-13T12:52:16.1291569Z [command]/usr/bin/git version
+2026-08-13T12:52:16.1334329Z git version 2.54.0
+2026-08-13T12:52:16.1370878Z Temporarily overriding HOME='/home/runner/work/_temp/6505c046-1141-4abb-8b2e-b840c8fce2b1' before making global git config changes
+2026-08-13T12:52:16.1372338Z Adding repository directory to the temporary git global config as a safe directory
+2026-08-13T12:52:16.1375522Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/OTA-Extract/OTA-Extract
+2026-08-13T12:52:16.1416717Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-08-13T12:52:16.1458901Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-08-13T12:52:16.1713501Z fatal: No url found for submodule path 'reference_repos/transsion-ota-prober' in .gitmodules
+2026-08-13T12:52:16.1793887Z ##[warning]The process '/usr/bin/git' failed with exit code 128

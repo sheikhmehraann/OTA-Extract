@@ -1,0 +1,8 @@
+2026-08-13T12:50:19.5460000Z Requested labels: ubuntu-latest
+2026-08-13T12:50:19.5460000Z Job defined at: sheikhmehraann/OTA-Extract/.github/workflows/ota_extract.yml@refs/heads/main
+2026-08-13T12:50:19.5460000Z Waiting for a runner to pick up this job...
+2026-08-13T12:50:19.5280000Z Evaluating extract-ota.if
+2026-08-13T12:50:19.5280000Z Evaluating: success()
+2026-08-13T12:50:19.5280000Z Result: true
+2026-08-13T12:50:19.8860000Z Job is about to start running on the hosted runner: GitHub Actions 1000000336
+2026-08-13T12:50:19.8870000Z Job is waiting for a hosted runner to come online.
