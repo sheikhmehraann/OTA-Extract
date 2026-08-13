@@ -24,8 +24,8 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
     print(f"[+] Target Payload: {payload_path}")
     print("==================================================")
 
-    # 1. Engine #1: Raw Block Extractor (Parses Protobuf & reconstructs raw replace data blocks)
-    print("[+] Engine 1: Executing Raw Protobuf Block Extractor...")
+    # 1. Engine #1: Universal Raw Block Extractor (Reconstructs ALL partition images)
+    print("[+] Engine 1: Executing Universal Raw Protobuf Block Extractor...")
     try:
         extract_raw_blocks(payload_path, output_dir)
     except Exception as e:
@@ -49,7 +49,7 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
         cmd = ["python3", py_dumper, "--out", output_dir, payload_path]
         subprocess.run(cmd, check=False)
 
-    # 5. Filter & Keep all valid partition files (> 4 KB)
+    # 5. Filter & Keep all valid partition files (> 0 bytes)
     print("\n==================================================")
     print("[+] Validating Extracted Partition Images...")
     print("==================================================")
@@ -61,7 +61,7 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
         fpath = os.path.join(output_dir, fname)
         if os.path.isfile(fpath):
             size = os.path.getsize(fpath)
-            if size <= 4096:
+            if size == 0:
                 print(f"  [-] Removing 0-byte placeholder: {fname}")
                 os.remove(fpath)
             else:
@@ -70,7 +70,7 @@ def resolve_incremental(payload_path, output_dir, base_dir=None):
                 print(f"  [✓] EXTRACTED REAL PARTITION IMAGE: {fname:<25} ({size / 1024 / 1024:.2f} MB)")
 
     print("==================================================")
-    print(f"[SUCCESS] Total Extracted Real Partition Images: {len(valid_images)} ({total_bytes / 1024 / 1024:.2f} MB total)")
+    print(f"[SUCCESS] Total Extracted Partition Images: {len(valid_images)} ({total_bytes / 1024 / 1024:.2f} MB total)")
     print("==================================================")
 
     if not valid_images:

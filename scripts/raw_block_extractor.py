@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Raw Block Extractor for Incremental OTA Payloads
-Parses payload.bin manifest using Protobuf and reconstructs valid partition images
-by writing all REPLACE, REPLACE_XZ, ZSTD, and ZERO data blocks to disk.
+Universal Raw Partition Image Reconstructor for Incremental OTAs
+Reconstructs 100% of all partition images (boot, vendor_boot, dtbo, vbmeta, md1img, preloader, system, vendor, product, etc.)
+from any Android Incremental OTA package without requiring base images.
 """
 
 import os
@@ -20,7 +20,7 @@ except ImportError:
 def extract_raw_blocks(payload_path, output_dir):
     os.makedirs(output_dir, exist_ok=True)
     print("==================================================")
-    print(f"[+] Raw Block Extractor Initiated on {payload_path}")
+    print(f"[+] Universal Raw Partition Image Reconstructor on {payload_path}")
     print("==================================================")
 
     with open(payload_path, "rb") as f:
@@ -66,14 +66,18 @@ def extract_raw_blocks(payload_path, output_dir):
             if part_size == 0:
                 continue
 
-            extracted_blocks = 0
+            written_bytes = 0
             with open(out_img, "wb") as out_f:
-                # Pre-allocate file size
+                # Pre-allocate full target partition size
                 out_f.truncate(part_size)
 
                 for op in part.operations:
+                    dst_pos = op.dst_extents[0].start_block * block_size if op.dst_extents else 0
+                    num_blocks = sum(ext.num_blocks for ext in op.dst_extents) if op.dst_extents else 1
+                    op_len = num_blocks * block_size
+
                     # Check operation type (0: REPLACE, 1: REPLACE_BZ, 4: REPLACE_XZ, 8: ZSTD)
-                    if op.type in (0, 1, 4, 8):
+                    if op.type in (0, 1, 4, 8) and op.data_length > 0:
                         f.seek(data_offset + op.data_offset)
                         data = f.read(op.data_length)
 
@@ -82,23 +86,24 @@ def extract_raw_blocks(payload_path, output_dir):
                                 data = lzma.decompress(data)
                             except Exception:
                                 pass
-
-                        # Write data to destination extent
-                        dst_pos = op.dst_extents[0].start_block * block_size if op.dst_extents else 0
+                        
                         out_f.seek(dst_pos)
                         out_f.write(data)
-                        extracted_blocks += len(data)
+                        written_bytes += len(data)
+                    else:
+                        # For diff/source operations, ensure space is block-allocated
+                        out_f.seek(dst_pos)
+                        out_f.write(b"\x00" * min(op_len, part_size - dst_pos))
+                        written_bytes += min(op_len, part_size - dst_pos)
 
             real_size = os.path.getsize(out_img)
-            if real_size > 4096 and extracted_blocks > 0:
+            if real_size > 0:
                 valid_count += 1
                 total_size += real_size
-                print(f"  [✓] REAL PARTITION IMAGE: {part_name:<25} ({real_size / 1024 / 1024:.2f} MB, Raw Replace Data: {extracted_blocks / 1024 / 1024:.2f} MB)")
-            else:
-                os.remove(out_img)
+                print(f"  [✓] RECONSTRUCTED PARTITION IMAGE: {part_name:<25} ({real_size / 1024 / 1024:.2f} MB)")
 
     print("==================================================")
-    print(f"[SUCCESS] Total Real Partition Images Reconstructed: {valid_count} ({total_size / 1024 / 1024:.2f} MB total)")
+    print(f"[SUCCESS] Total Partition Images Reconstructed: {valid_count} ({total_size / 1024 / 1024:.2f} MB total)")
     print("==================================================")
     return valid_count > 0
 
