@@ -38,8 +38,6 @@ on:
         type: choice
         options:
           - gofile
-          - sourceforge
-          - all
           - release
           - pixeldrain
           - artifacts
@@ -83,11 +81,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           UPLOAD_TARGET: ${{ inputs.upload_target }}
           ARCHIVE_FORMAT: ${{ inputs.archive_format }}
-          SF_USER: ${{ secrets.SF_USER || 'mehraann19' }}
-          SF_PROJECT: ${{ secrets.SF_PROJECT || 'ota-extract' }}
-          SF_API_KEY: ${{ secrets.SF_API_KEY || '518dff6a-4493-427f-85a1-ef08660ca993' }}
-          SF_PASS: ${{ secrets.SF_PASS }}
-          SF_SSH_KEY: ${{ secrets.SF_SSH_KEY }}
         run: |
           chmod +x scripts/upload_output.sh
           ./scripts/upload_output.sh

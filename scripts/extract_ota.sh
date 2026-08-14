@@ -21,6 +21,15 @@ if [ -z "$OTA_URL" ]; then
     exit 1
 fi
 
+echo "=================================================="
+echo "[+] Checking for Full OTA Upgrade via Google Check-in..."
+echo "=================================================="
+RESOLVED_URL=$(python3 scripts/resolve_full_ota.py "$OTA_URL" | grep "\[FINAL_URL\]" | awk '{print $2}' || true)
+if [ -n "$RESOLVED_URL" ] && [[ "$RESOLVED_URL" == http* ]]; then
+    echo "[+] Using Resolved URL: $RESOLVED_URL"
+    OTA_URL="$RESOLVED_URL"
+fi
+
 echo "[+] Downloading target OTA from: $OTA_URL"
 cd "$WORKDIR"
 

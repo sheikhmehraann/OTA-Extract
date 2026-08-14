@@ -44,14 +44,6 @@ if [ "$UPLOAD_TARGET" == "gofile" ] || [ "$UPLOAD_TARGET" == "all" ]; then
     }
 fi
 
-if [ "$UPLOAD_TARGET" == "sourceforge" ] || [ "$UPLOAD_TARGET" == "all" ]; then
-    echo "[+] Uploading to SourceForge..."
-    python3 scripts/upload_sourceforge.py "$PKG_NAME" || {
-        echo "[!] SourceForge upload failed or skipped, falling back to GoFile..."
-        python3 scripts/upload_gofile.py "$PKG_NAME"
-    }
-fi
-
 if [ "$UPLOAD_TARGET" == "pixeldrain" ]; then
     echo "[+] Uploading to Pixeldrain..."
     RESPONSE=$(curl -s -F "file=@$PKG_NAME" https://pixeldrain.com/api/file)
