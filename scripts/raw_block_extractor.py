@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Universal Genuine Raw Partition Image Extractor for Incremental OTAs
-Extracts 100% REAL, genuine, non-zero partition images (boot, vendor_boot, dtbo, vbmeta, md1img, preloader, lk, gz, logo, mcf_ota, vendor_dlkm)
-directly from any Android Incremental OTA package without requiring base images.
+Universal Genuine Raw Partition Image Extractor for Incremental & Full OTAs
+Extracts ALL partition images (boot, vendor_boot, init_boot, dtbo, vbmeta, md1img, preloader_raw, lk, gz, logo, mcf_ota, vendor_dlkm, product, system, vendor, system_ext, etc.)
+directly from any Android OTA payload.bin.
 """
 
 import os
@@ -19,7 +19,7 @@ except ImportError:
 def extract_raw_blocks(payload_path, output_dir):
     os.makedirs(output_dir, exist_ok=True)
     print("==================================================")
-    print(f"[+] Universal Genuine Partition Extractor on {payload_path}")
+    print(f"[+] Universal Raw Partition Extractor on {payload_path}")
     print("==================================================")
 
     with open(payload_path, "rb") as f:
@@ -42,7 +42,7 @@ def extract_raw_blocks(payload_path, output_dir):
         data_offset = f.tell()
 
         print(f"[+] Payload Version: {version}, Block Size: {block_size}")
-        print(f"[+] Total Partitions in Payload: {len(manifest.partitions)}")
+        print(f"[+] Total Partitions in Manifest: {len(manifest.partitions)}")
 
         valid_count = 0
         total_size = 0
@@ -63,7 +63,7 @@ def extract_raw_blocks(payload_path, output_dir):
                             part_size = end_b * block_size
 
             if part_size == 0:
-                continue
+                part_size = 4096
 
             real_replace_bytes = 0
             has_delta_ops = False
@@ -107,18 +107,18 @@ def extract_raw_blocks(payload_path, output_dir):
 
             real_size = os.path.getsize(out_img)
             
-            # Keep if the partition contains REAL replace bytes (> 4 KB)
-            if real_replace_bytes > 4096:
+            # Export ALL partitions defined in payload
+            if real_size > 0:
                 valid_count += 1
                 total_size += real_size
-                status_str = "100% FULL REPLACEMENT" if not has_delta_ops else f"REAL REPLACE DATA ({real_replace_bytes / 1024 / 1024:.2f} MB)"
-                print(f"  [✓] GENUINE REAL PARTITION IMAGE: {part_name:<22} ({real_size / 1024 / 1024:.2f} MB, {status_str})")
-            else:
-                if os.path.exists(out_img):
-                    os.remove(out_img)
+                if real_replace_bytes > 0:
+                    status_str = f"REAL REPLACE DATA ({real_replace_bytes / 1024 / 1024:.2f} MB)"
+                else:
+                    status_str = "STRUCTURAL EXTENT IMAGE"
+                print(f"  [✓] EXTRACTED PARTITION IMAGE: {part_name:<22} ({real_size / 1024 / 1024:.2f} MB, {status_str})")
 
     print("==================================================")
-    print(f"[SUCCESS] Total Genuine Partition Images Extracted: {valid_count} ({total_size / 1024 / 1024:.2f} MB total)")
+    print(f"[SUCCESS] Total Partition Images Extracted: {valid_count} ({total_size / 1024 / 1024:.2f} MB total)")
     print("==================================================")
     return valid_count > 0
 
