@@ -15,7 +15,7 @@ def main():
     parser.add_argument("-b", "--base", default="", help="Base Firmware URL (Optional for INCREMENTAL)")
     parser.add_argument("-p", "--partitions", default="all", help="Partitions to extract (e.g. boot,init_boot or all)")
     parser.add_argument("-f", "--format", choices=["tar.zst", "zip"], default="tar.zst", help="Archive packaging format (tar.zst = Rama standard)")
-    parser.add_argument("-dest", "--target", choices=["gofile", "release", "pixeldrain", "artifacts"], default="gofile", help="Upload destination")
+    parser.add_argument("-dest", "--target", choices=["gofile", "sourceforge", "all", "release", "pixeldrain", "artifacts"], default="gofile", help="Upload destination")
     
     args = parser.parse_args()
 
