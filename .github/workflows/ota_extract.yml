@@ -24,6 +24,14 @@ on:
         required: false
         default: 'all'
         type: string
+      archive_format:
+        description: 'Output Archive Format (tar.zst = Rama standard 10x faster)'
+        required: true
+        type: choice
+        options:
+          - tar.zst
+          - zip
+        default: 'tar.zst'
       upload_target:
         description: 'Upload Destination'
         required: true
@@ -72,6 +80,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           UPLOAD_TARGET: ${{ inputs.upload_target }}
+          ARCHIVE_FORMAT: ${{ inputs.archive_format }}
         run: |
           chmod +x scripts/upload_output.sh
           ./scripts/upload_output.sh

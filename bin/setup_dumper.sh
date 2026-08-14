@@ -2,11 +2,11 @@
 set -eo pipefail
 
 echo "=================================================="
-echo "[+] Setting up High-Performance Dependencies..."
+echo "[+] Setting up High-Performance Dependencies & Toolchain..."
 echo "=================================================="
 
 sudo apt-get update -qq
-sudo apt-get install -y aria2 p7zip-full brotli python3 python3-pip python3-setuptools curl jq xz-utils libssl-dev
+sudo apt-get install -y aria2 p7zip-full zstd tar brotli python3 python3-pip python3-setuptools curl jq xz-utils libssl-dev
 
 echo "[+] Installing Python payload extraction requirements..."
 python3 -m pip install --break-system-packages protobuf bsdiff4 brotli fsspec zstandard || pip3 install protobuf bsdiff4 brotli fsspec zstandard || true

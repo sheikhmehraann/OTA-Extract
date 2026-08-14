@@ -11,10 +11,11 @@ import argparse
 def main():
     parser = argparse.ArgumentParser(description="Trigger GitHub Actions Android OTA Extraction")
     parser.add_argument("-u", "--url", required=True, help="Direct download URL to OTA ZIP or payload.bin")
-    parser.add_argument("-t", "--type", choices=["FULL", "INCREMENTAL"], default="FULL", help="OTA type (FULL or INCREMENTAL)")
+    parser.add_argument("-t", "--type", choices=["FULL", "INCREMENTAL"], default="INCREMENTAL", help="OTA type (FULL or INCREMENTAL)")
     parser.add_argument("-b", "--base", default="", help="Base Firmware URL (Optional for INCREMENTAL)")
     parser.add_argument("-p", "--partitions", default="all", help="Partitions to extract (e.g. boot,init_boot or all)")
-    parser.add_argument("-dest", "--target", choices=["release", "pixeldrain", "gofile", "artifacts"], default="release", help="Upload destination")
+    parser.add_argument("-f", "--format", choices=["tar.zst", "zip"], default="tar.zst", help="Archive packaging format (tar.zst = Rama standard)")
+    parser.add_argument("-dest", "--target", choices=["gofile", "release", "pixeldrain", "artifacts"], default="gofile", help="Upload destination")
     
     args = parser.parse_args()
 
@@ -24,6 +25,7 @@ def main():
     if args.base:
         print(f"    Base Firmware URL: {args.base}")
     print(f"    Partitions: {args.partitions}")
+    print(f"    Archive Format: {args.format}")
     print(f"    Upload Target: {args.target}")
 
     cmd = [
@@ -32,6 +34,7 @@ def main():
         "-f", f"ota_type={args.type}",
         "-f", f"base_firmware_url={args.base}",
         "-f", f"partitions={args.partitions}",
+        "-f", f"archive_format={args.format}",
         "-f", f"upload_target={args.target}"
     ]
 
